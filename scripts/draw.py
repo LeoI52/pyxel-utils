@@ -153,13 +153,14 @@ def draw_brick_wall(x:int, y:int, width:int, height:int, brick_width:int, brick_
 def draw_glitch(x:int, y:int, width:int, height:int, intensity:int, colors:list|int):
     colors = [colors] if isinstance(colors, int) else colors
     for _ in range(intensity):
-        glitch_y = random.randint(y, y + height)
+        glitch_y = random.randint(y, y + height - 1)
         pyxel.rect(x, glitch_y, width, 1, random.choice(colors))
 
 def draw_eye(x:int, y:int, target_x:int, target_y:int, eye_radius:int, pupil_radius:int, eye_color:int=7, pupil_color:int=0, max_offset:int=4):
     angle = math.atan2(target_y - y, target_x - x)
-    offset_x = math.cos(angle) * max_offset
-    offset_y = math.sin(angle) * max_offset
+    dist = min(max_offset, math.dist((x, y), (target_x, target_y)))
+    offset_x = math.cos(angle) * dist
+    offset_y = math.sin(angle) * dist
     pyxel.circ(x, y, eye_radius, eye_color)
     pyxel.circ(x + offset_x, y + offset_y, pupil_radius, pupil_color)
 
@@ -175,7 +176,6 @@ if __name__ == "__main__":
     spiral_colors = [8, 9, 10, 11, 12, 13, 14, 15]
 
     pyxel.init(228, 128, title="Draw.py Example")
-    pyxel.fullscreen(True)
     pyxel.mouse(True)
 
     def update():

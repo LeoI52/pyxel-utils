@@ -36,8 +36,8 @@ def lerp(start:float, end:float, speed:float=0.1)-> float:
 def ease_in_out(value:float)-> float:
     return 3 * value ** 2 - 2 * value ** 3
 
-def wave_motion(value:float, wave_speed:float, wave_height:float, time:int)-> float:
-    return value + (math.cos(time / wave_speed)) * wave_height
+def wave_motion(value:float, wave_speed:float, amplitude:float, time:int)-> float:
+    return value + (math.cos(time / wave_speed)) * amplitude
 
 def circular_motion(center_x:float, center_y:float, radius:int, speed:float, time:int)-> tuple:
     angle = time * speed
@@ -60,8 +60,8 @@ def spiral_motion(center_x:float, center_y:float, initial_radius:float, growth_r
 
 def infinity_motion(center_x:float, center_y:float, size:int, speed:float, time:int)-> tuple:
     t = time * speed
-    x = center_x + math.sin(t) * size
-    y = center_y + math.sin(t * 2) * size / 2
+    x = center_x + (math.sin(t) * size) / (1 + math.cos(t)**2)
+    y = center_y + (math.sin(t) * math.cos(t) * size) / (1 + math.cos(t)**2)
     return x, y
 
 def back_forth_motion(center_x:float, amplitude:float, speed:float, time:int)-> float:
@@ -80,7 +80,6 @@ if __name__ == "__main__":
     path_points = [(75, 75), (175, 75), (175, 110), (75, 110)]
 
     pyxel.init(228, 128, title="Animations.py Example")
-    pyxel.fullscreen(True)
     pyxel.mouse(True)
 
     def update():

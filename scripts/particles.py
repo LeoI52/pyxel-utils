@@ -379,7 +379,6 @@ if __name__ == "__main__":
     mode = modes[0]
 
     pyxel.init(228, 128, title="Particles.py Example")
-    pyxel.fullscreen(True)
     pyxel.mouse(True)
 
     def update():
