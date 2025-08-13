@@ -23,3 +23,25 @@ def collision_line_line(x1:int, y1:int, x2:int, y2:int, x3:int, y3:int, x4:int, 
     def ccw(ax, ay, bx, by, cx, cy):
         return (cy - ay) * (bx - ax) > (by - ay) * (cx - ax)
     return ccw(x1, y1, x3, y3, x4, y4) != ccw(x2, y2, x3, y3, x4, y4) and ccw(x1, y1, x2, y2, x3, y3) != ccw(x1, y1, x2, y2, x4, y4)
+
+if __name__ == "__main__":
+    import pyxel
+
+    pyxel.init(228, 128, title="Collisions.py Example")
+
+    def update():
+        pass
+
+    def draw():
+        pyxel.cls(12)
+
+        c1 = 8 if collision_circle_circle(pyxel.mouse_x, pyxel.mouse_y, 10, 30, 30, 15) or collision_rect_circle(120, 70, 40, 30, pyxel.mouse_x, pyxel.mouse_y, 10) else 3
+        c2 = 8 if collision_point_circle(pyxel.mouse_x, pyxel.mouse_y, 30, 30, 15) or collision_point_rect(pyxel.mouse_x, pyxel.mouse_y, 120, 70, 40, 30) else 3
+
+        pyxel.circ(30, 30, 15, 7)
+        pyxel.rect(120, 70, 40, 30, 7)
+
+        pyxel.circb(pyxel.mouse_x, pyxel.mouse_y, 10, c1)
+        pyxel.circ(pyxel.mouse_x, pyxel.mouse_y, 1, c2)
+
+    pyxel.run(update, draw)
