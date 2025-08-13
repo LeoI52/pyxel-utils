@@ -7,7 +7,7 @@ TODO :
 - Debug Mode
 """
 
-from .vars import DEFAULT_PYXEL_COLORS
+from vars import DEFAULT_PYXEL_COLORS
 import random
 import pyxel
 import math

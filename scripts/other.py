@@ -4,7 +4,7 @@
 @updated : 13/08/2025
 """
 
-from .vars import *
+from vars import *
 import json
 import os
 

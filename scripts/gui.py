@@ -9,10 +9,10 @@ TODO :
 - Scrollable Panel
 """
 
-from .other import get_anchored_position, clamp
-from .draw import Sprite, rounded_rect
-from .animations import lerp
-from .vars import *
+from other import get_anchored_position, clamp
+from draw import Sprite, rounded_rect
+from animations import lerp
+from vars import *
 import random
 import pyxel
 import math
