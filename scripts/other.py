@@ -31,15 +31,15 @@ class SavingSystem:
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Failed to load {filename}: {e}")
 
-def get_anchored_position(x:int, y:int, w:int, h:int, anchor:int)-> tuple:
+def get_anchored_position(x:int, y:int, width:int, height:int, anchor:int)-> tuple:
     if anchor in [ANCHOR_TOP_RIGHT, ANCHOR_BOTTOM_RIGHT, ANCHOR_RIGHT]:
-        x -= w
+        x -= width
     if anchor in [ANCHOR_BOTTOM_LEFT, ANCHOR_BOTTOM_RIGHT, ANCHOR_BOTTOM]:
-        y -= h
+        y -= height
     if anchor in [ANCHOR_TOP, ANCHOR_BOTTOM, ANCHOR_CENTER]:
-        x -= w // 2
+        x -= width // 2
     if anchor in [ANCHOR_LEFT, ANCHOR_RIGHT, ANCHOR_CENTER]:
-        y -= h // 2
+        y -= height // 2
         
     return x, y
 
