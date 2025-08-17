@@ -2,6 +2,11 @@
 @author : Léo Imbert
 @created : 15/10/2024
 @updated : 13/08/2025
+
+TODO :
+- Redo TriangleLight
+- Redo QuadrilateralLight
+- Optimize drawing
 """
 
 import random
@@ -77,8 +82,8 @@ class TriangleLight:
 class CircleLight:
 
     def __init__(self, x:int, y:int, radius:int, lights_substitution_colors:dict, state_change_interval:int=30, turn_on_chance:float=1, turn_off_chance:float=0):
-        self.__x= x
-        self.__y = y
+        self.x= x
+        self.y = y
         self.__radius = radius
         self.__lights_substitution_colors = lights_substitution_colors
         self.__points = self.__generate_points_list()
@@ -88,15 +93,19 @@ class CircleLight:
         self.__start_frame = pyxel.frame_count
         self.state_change_interval = state_change_interval
 
+    @property
+    def radius(self)-> int:
+        return self.__radius
+    
+    @radius.setter
+    def radius(self, value):
+        self.__radius = value
+        self.__points = self.__generate_points_list()
+
     def __generate_points_list(self)-> list:
-        return [(x, y) for x in range(self.__radius * 2 + 1) for y in range(self.__radius * 2 + 1) if x ** 2 + y ** 2 <= self.__radius ** 2]
+        return [(x, y) for x in range(-self.__radius, self.__radius + 1) for y in range(-self.__radius, self.__radius + 1) if x ** 2 + y ** 2 <= self.__radius ** 2]
 
-        return [(x, y) for x in range(self.__x - self.__radius, self.__x + self.__radius) for y in range(self.__y - self.__radius, self.__y + self.__radius) if (x - self.__x) ** 2 + (y - self.__y) ** 2 <= self.__radius ** 2]
-
-    def __is_on_screen(self, min_x:int, max_x:int, min_y:int, max_y:int, camera_x:int, camera_y:int)-> bool:
-        return not (max_x < camera_x or min_x >= camera_x + pyxel.width or max_y < camera_y or min_y >= camera_y + pyxel.height)
-
-    def draw(self, camera_x:int=0, camera_y:int=0):
+    def draw(self):
         if pyxel.frame_count - self.__start_frame >= self.state_change_interval:
             self.__start_frame = pyxel.frame_count
 
@@ -109,24 +118,9 @@ class CircleLight:
             return
         
         for x, y in self.__points:
-            current_color = pyxel.pget(self.__x + x, self.__y + y)
-
-        
-        return
-
-        min_x = self.__x - self.__radius
-        max_x = self.__x + self.__radius
-        min_y = self.__y - self.__radius
-        max_y = self.__y + self.__radius
-
-        if not self.__is_on_screen(min_x, max_x, min_y, max_y, camera_x, camera_y):
-            return
-        
-        for x, y in self.__points:
-            if camera_x <= x < camera_x + pyxel.width and camera_y <= y < camera_y + pyxel.height:
-                current_color = pyxel.pget(x, y)
-                if current_color in self.__lights_substitution_colors:
-                    pyxel.pset(x, y, self.__lights_substitution_colors[current_color])
+            current_color = pyxel.pget(self.x + x, self.y + y)
+            if current_color in self.__lights_substitution_colors:
+                pyxel.pset(self.x + x, self.y + y, self.__lights_substitution_colors[current_color])
 
 class QuadrilateralLight:
 
@@ -200,6 +194,30 @@ class LightManager:
     def remove_light(self, light:TriangleLight|CircleLight|QuadrilateralLight):
         self.__lights.remove(light)
 
-    def draw(self, camera_x:int=0, camera_y:int=0):
+    def draw(self):
         for light in self.__lights:
-            light.draw(camera_x, camera_y)
+            light.draw()
+
+if __name__ == "__main__":
+    import math
+
+    pyxel.init(228, 128, title="Lights.py Example", fps=60)
+    pyxel.mouse(True)
+
+    lm = LightManager()
+    g = CircleLight(114, 64, 20, {12:0})
+    lm.add_light(g)
+
+    def update():
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            g.x = random.randint(20, 208)
+            g.y = random.randint(20, 108)
+
+        g.radius =  int(20 + (math.cos(pyxel.frame_count / 5)) * 2)
+
+    def draw():
+        pyxel.cls(12)
+
+        lm.draw()
+
+    pyxel.run(update, draw)

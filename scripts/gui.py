@@ -467,14 +467,20 @@ if __name__ == "__main__":
     pyxel.init(228, 128, title="Gui.py Example", fps=60)
     pyxel.mouse(True)
 
-    t1 = Text("Gui.py Example", 114, 2, [8,7], 2, ANCHOR_TOP, color_mode=ROTATING_COLOR_MODE, color_speed=20, wavy=True, shadow=True, shadow_color=1, shadow_offset=2)
+    t = Text("Gui.py Example", 114, 2, [8,7], 2, ANCHOR_TOP, color_mode=ROTATING_COLOR_MODE, color_speed=20, wavy=True, shadow=True, shadow_color=1, shadow_offset=2)
+    b = Button("Click", 10, 50, 9, 10, 10, 9, 1, True, 10)
+    e = Entry(100, 60, 80, 0, 13, 7, 1)
 
     def update():
-        t1.update()
+        t.update()
+        b.update()
+        e.update()
 
     def draw():
         pyxel.cls(12)
 
-        t1.draw()
+        t.draw()
+        b.draw()
+        e.draw()
 
     pyxel.run(update, draw)
