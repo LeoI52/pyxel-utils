@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 06/09/2025
 """
 
 import colorsys
@@ -157,3 +157,50 @@ def posterize_palette(original_palette:list, kwargs:dict={})-> list:
         b = round(b / factor) * factor
         palette.append(rgb_to_hex(r, g, b))
     return palette
+
+if __name__ == "__main__":
+    from vars import DEFAULT_PYXEL_COLORS
+    import pyxel
+
+    pyxel.init(128, 128, title="Palette.py Example")
+    pyxel.mouse(True)
+
+    def update():
+        if pyxel.btnp(pyxel.KEY_A):
+            pyxel.colors.from_list(DEFAULT_PYXEL_COLORS)
+        if pyxel.btnp(pyxel.KEY_Z):
+            pyxel.colors.from_list(inverted_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_E):
+            pyxel.colors.from_list(grayscaled_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_R):
+            pyxel.colors.from_list(black_white_palette(DEFAULT_PYXEL_COLORS, {"threshold":128}))
+        if pyxel.btnp(pyxel.KEY_T):
+            pyxel.colors.from_list(random_color_jitter_palette(DEFAULT_PYXEL_COLORS, {"amount":30}))
+        if pyxel.btnp(pyxel.KEY_Y):
+            pyxel.colors.from_list(night_vision_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_U):
+            pyxel.colors.from_list(heat_map_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_I):
+            pyxel.colors.from_list(water_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_O):
+            pyxel.colors.from_list(fire_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btn(pyxel.KEY_P):
+            pyxel.colors.from_list(psychedelic_shifting_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.colors.from_list(sepia_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_S):
+            pyxel.colors.from_list(neon_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_D):
+            pyxel.colors.from_list(brightness_adjusted_palette(DEFAULT_PYXEL_COLORS, {"factor":1.5}))
+        if pyxel.btnp(pyxel.KEY_F):
+            pyxel.colors.from_list(posterize_palette(DEFAULT_PYXEL_COLORS, {"levels":3}))
+
+    def draw():
+        pyxel.cls(0)
+        c = 0
+        for y in range(0, 128, 32):
+            for x in range(0, 128, 32):
+                pyxel.rect(x, y, 32, 32, c)
+                c += 1
+
+    pyxel.run(update, draw)
