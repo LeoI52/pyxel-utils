@@ -1,24 +1,22 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
-
-TODO :
-- Debug Mode
+@updated : 06/09/2025
 """
 
 from vars import DEFAULT_PYXEL_COLORS
 import random
 import pyxel
 import math
+import time
 import sys
 import os
 
+
 class PyxelManager:
 
-    def __init__(self, width:int, height:int, scenes:list, default_scene_id:int=0, fps:int=60, fullscreen:bool=False, mouse:bool=False, quit_key:int=pyxel.KEY_ESCAPE, camera_x:int=0, camera_y:int=0):
+    def __init__(self, width:int, height:int, scenes:list, default_scene_id:int=0, fps:int=60, fullscreen:bool=False, mouse:bool=False, quit_key:int=pyxel.KEY_ESCAPE, camera_x:int=0, camera_y:int=0, debug_background_color:int=0, debug_text_color:int=7):
         
-        self.__fps = fps
         self.__scenes_dict = {scene.id:scene for scene in scenes}
         self.__current_scene = self.__scenes_dict.get(default_scene_id, 0)
         self.__transition = {}
@@ -26,9 +24,17 @@ class PyxelManager:
         self.__cam_x = self.__cam_tx = camera_x
         self.__cam_y = self.__cam_ty = camera_y
         self.__shake_amount = 0
-        self.__sub_shake_amount = 0
+        self.__shake_decay = 0
 
-        pyxel.init(width, height, fps=self.__fps, quit_key=quit_key)
+        self.__fps = fps
+        self.__previous_frame_time = time.time()
+        self.__current_fps = 0
+
+        self.debug = False
+        self.debug_background_color = debug_background_color
+        self.debug_text_color = debug_text_color
+
+        pyxel.init(width, height, fps=fps, quit_key=quit_key)
         pyxel.fullscreen(fullscreen)
         pyxel.mouse(mouse)
 
@@ -39,11 +45,11 @@ class PyxelManager:
         pyxel.colors.from_list(self.__current_scene.palette)
 
     @property
-    def camera_x(self)-> int:
+    def camera_x(self)-> int|float:
         return self.__cam_x
     
     @property
-    def camera_y(self)-> int:
+    def camera_y(self)-> int|float:
         return self.__cam_y
 
     @property
@@ -54,10 +60,6 @@ class PyxelManager:
     def mouse_y(self)-> int:
         return self.__cam_y + pyxel.mouse_y
     
-    @property
-    def fps(self)-> int:
-        return self.__fps
-    
     def set_camera(self, new_camera_x:int, new_camera_y:int):
         self.__cam_x = self.__cam_tx = new_camera_x
         self.__cam_y = self.__cam_ty = new_camera_y
@@ -66,9 +68,9 @@ class PyxelManager:
         self.__cam_tx = new_camera_x
         self.__cam_ty = new_camera_y
 
-    def shake_camera(self, amount:int, sub_amount:float):
+    def shake_camera(self, amount:int, decay:float):
         self.__shake_amount = amount
-        self.__sub_shake_amount = sub_amount
+        self.__shake_decay = decay
 
     def change_scene(self, new_scene_id:int, new_camera_x:int=0, new_camera_y:int=0, action=None):
         self.set_camera(new_camera_x, new_camera_y)
@@ -287,9 +289,9 @@ class PyxelManager:
         self.__cam_y += (self.__cam_ty - self.__cam_y) * 0.1
 
         if self.__shake_amount > 0:
-            amount = int(self.__shake_amount)
-            pyxel.camera(self.__cam_x + random.uniform(-amount, amount), self.__cam_y + random.uniform(-amount, amount))
-            self.__shake_amount -= self.__sub_shake_amount
+            a = self.__shake_amount
+            pyxel.camera(self.__cam_x + random.uniform(-a, a), self.__cam_y + random.uniform(-a, a))
+            self.__shake_amount = max(0, self.__shake_amount - self.__shake_decay)
         else:
             pyxel.camera(self.__cam_x, self.__cam_y)
 
@@ -300,6 +302,17 @@ class PyxelManager:
         self.__current_scene.draw()
         if self.__transition:
             self.handle_transitions()
+
+        if self.debug:
+            pyxel.rect(self.__cam_x + 1, self.__cam_y + 1, 66, 27, self.debug_background_color)
+            pyxel.text(self.__cam_x + 3, self.__cam_y + 3, f"Scene[{self.__current_scene.id}]", self.debug_text_color)
+            pyxel.text(self.__cam_x + 3, self.__cam_y + 9, f"Screen[{pyxel.mouse_x},{pyxel.mouse_y}]", self.debug_text_color)
+            pyxel.text(self.__cam_x + 3, self.__cam_y + 15, f"World[{self.mouse_x:.0f},{self.mouse_y:.0f}]", self.debug_text_color)
+            pyxel.text(self.__cam_x + 3, self.__cam_y + 21, f"Fps[{self.__current_fps:.0f}]", self.debug_text_color)
+
+        if pyxel.frame_count % self.__fps == 0:
+            self.__current_fps = 1 / (time.time() - self.__previous_frame_time)
+        self.__previous_frame_time = time.time()
 
     def run(self):
         pyxel.run(self.update, self.draw)
@@ -314,3 +327,27 @@ class Scene:
         self.pyxres_path = pyxres_path
         self.palette = palette
         self.screen_mode = screen_mode
+
+if __name__ == "__main__":
+    def update_1():
+        if pyxel.btnp(pyxel.KEY_B):
+            pm.debug = not pm.debug
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            pm.change_scene_dither(1, 0.05, 1)
+
+    def draw_1():
+        pyxel.cls(10)
+
+    def update_2():
+        if pyxel.btnp(pyxel.KEY_B):
+            pm.debug = not pm.debug
+        if pyxel.btnp(pyxel.KEY_SPACE):
+            pm.change_scene_dither(0, 0.05, 1)
+
+    def draw_2():
+        pyxel.cls(3)
+
+    s1 = Scene(0, "Game.py Example - Scene 1", update_1, draw_1)
+    s2 = Scene(1, "Game.py Example - Scene 2", update_2, draw_2)
+    pm = PyxelManager(228, 128, [s1, s2], mouse=True)
+    pm.run()

@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 17/08/2025
 
 TODO :
 - Redo TriangleLight
