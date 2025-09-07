@@ -7,27 +7,27 @@
 import math
 
 def follow_path(x:int, y:int, speed:float, current_point:int, points:list, loop:bool=True)-> tuple:
-    direction_x = points[current_point][0] - x
-    direction_y = points[current_point][1] - y
-    distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
+    dx = points[current_point][0] - x
+    dy = points[current_point][1] - y
+    dist = math.hypot(dx, dy)
 
-    if distance < max(speed, 0.1):
+    if dist <= speed:
         current_point = (current_point + 1) % len(points) if loop else current_point + 1
         if current_point >= len(points) and not loop:
             current_point -= 1
         return x, y, current_point
     
-    direction_x /= distance
-    direction_y /= distance
+    dx /= dist
+    dy /= dist
 
-    return x + direction_x * speed, y + direction_y * speed, current_point
+    return x + dx * speed, y + dy * speed, current_point
 
 def target_motion(x:float, y:float, target_x:float, target_y:float, speed:float)-> tuple:
     dx = target_x - x
     dy = target_y - y
     dist = math.hypot(dx, dy)
-    if dist == 0:
-        return x, y
+    if dist <= speed:
+        return target_x, target_y
     return x + dx / dist * speed, y + dy / dist * speed
 
 def wave_motion(value:float, amplitude:float, speed:float, time:int)-> float:

@@ -1,8 +1,10 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 07/09/2025
 """
+
+import math
 
 def collision_point_rect(x1:int, y1:int, x2:int, y2:int, w2:int, h2:int)-> bool:
     return x2 <= x1 <= x2 + w2 and y2 <= y1 <= y2 + h2
@@ -14,7 +16,7 @@ def collision_rect_rect(x1:int, y1:int, w1:int, h1:int, x2:int, y2:int, w2:int, 
     return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
 
 def collision_circle_circle(x1:int, y1:int, r1:int, x2:int, y2:int, r2:int)-> bool:
-    return (x2 - x1) ** 2 + (y2 - y1) ** 2 <= (r1 + r2) ** 2
+    return math.hypot(x2 - x1, y2 - y1) <= r1 + r2
 
 def collision_rect_circle(x1:int, y1:int, w1:int, h1:int, x2:int, y2:int, r2:int)-> bool:
     return ((max(x1, min(x2, x1 + w1)) - x2) ** 2 + (max(y1, min(y2, y1 + h1)) - y2) ** 2) <= r2 ** 2

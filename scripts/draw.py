@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 07/09/2025
 """
 
 from other import get_anchored_position
@@ -9,6 +9,27 @@ from vars import *
 import random
 import pyxel
 import math
+
+class DrawGroup:
+
+    def __init__(self, group:list=None, key_function=lambda item: item.y):
+        self.key_function = key_function
+        self.group = group or []
+
+    def add(self, item):
+        self.group.append(item)
+
+    def remove(self, item):
+        if item in self.group:
+            self.group.remove(item)
+
+    def update(self):
+        for item in self.group:
+            item.update()
+
+    def draw(self):
+        for item in sorted(self.group, key=self.key_function):
+            item.draw()
 
 class Sprite:
 
@@ -91,6 +112,18 @@ def rounded_rectb(x:int, y:int, width:int, height:int, corner_radius:int, color:
                 if corner_radius - 0.5 <= dist <= corner_radius + 0.5:
                     pyxel.pset(cx + sx * i, cy + sy * j, color)
 
+def draw_dashed_line(x1:int, y1:int, x2:int, y2:int, color:int, dash_length:int=4, gap_length:int=4):
+    dx, dy = x2 - x1, y2 - y1
+    length = int(math.hypot(dx, dy))
+    if length == 0:
+        return
+    for i in range(0, length, dash_length + gap_length):
+        t1 = i / length
+        t2 = min((i + dash_length) / length, 1)
+        sx, sy = int(x1 + dx * t1), int(y1 + dy * t1)
+        ex, ey = int(x1 + dx * t2), int(y1 + dy * t2)
+        pyxel.line(sx, sy, ex, ey, color)
+
 def draw_speech_bubble(x:int, y:int, width:int, height:int, tail_size:int, tail_target_x:int, tail_target_y:int, color:int, corner_radius:int=0, border:bool=False, border_color:int=0, tail_position:int=BOTTOM):
     rounded_rect(x, y, width, height, corner_radius, color)
     if border:
@@ -156,6 +189,12 @@ def draw_glitch(x:int, y:int, width:int, height:int, intensity:int, colors:list|
         glitch_y = random.randint(y, y + height - 1)
         pyxel.rect(x, glitch_y, width, 1, random.choice(colors))
 
+def draw_noise(x:int, y:int, width:int, height:int, colors:list):
+    for _ in range(width * height // 4):
+        px = random.randint(x, x + width - 1)
+        py = random.randint(y, y + height - 1)
+        pyxel.pset(px, py, random.choice(colors))
+
 def draw_eye(x:int, y:int, target_x:int, target_y:int, eye_radius:int, pupil_radius:int, eye_color:int=7, pupil_color:int=0, max_offset:int=4):
     angle = math.atan2(target_y - y, target_x - x)
     dist = min(max_offset, math.dist((x, y), (target_x, target_y)))
@@ -211,10 +250,6 @@ if __name__ == "__main__":
         draw_moving_spiral(50, 108, 12, 11, pyxel.frame_count, 3, 40, -0.06)
         draw_moving_spiral(76, 108, 10, 14, pyxel.frame_count, 4, 25, 0.1)
 
-        #? Colored Spiral
-        spiral_color = spiral_colors[int(pyxel.frame_count * 0.1) % len(spiral_colors)]
-        draw_moving_spiral(208, 108, 18, spiral_color, pyxel.frame_count, 5, 60, 0.05)
-
         #? Speech Bubbles
         pyxel.text(80, 44, "Speech Bubbles:", 9)
         draw_speech_bubble(80, 52, 40, 20, 8, 100, 77, 13, 3, True, 5, BOTTOM)
@@ -228,5 +263,9 @@ if __name__ == "__main__":
         pyxel.text(100, 82, "Tracking Eyes:", 9)
         draw_eye(120, 105, pyxel.mouse_x, pyxel.mouse_y, 8, 3, 7, 0, 5)
         draw_eye(150, 105, pyxel.mouse_x, pyxel.mouse_y, 8, 3, 7, 0, 5)
+
+        #? Dashed Line
+        pyxel.text(180, 82, "Dashed Line:", 9)
+        draw_dashed_line(180, 100, 220, 120, 8, 4, 4)
 
     pyxel.run(update, draw)

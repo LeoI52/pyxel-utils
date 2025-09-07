@@ -97,8 +97,8 @@ class RectangleParticle(ShapeParticle):
         
 class TriangleParticle(ShapeParticle):
 
-    def __init__(self, x:int, y:int, w:int, h:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:tuple=(1, 1), starting_angle:int=0, dither_duration:int=0, hollow:bool=False, rotating:bool=False, rotation_speed:int=1, wooble:bool=False):
-        super().__init__(x, y, w, h, colors, lifespan, speed, target, friction, acceleration, grow, dither_duration, hollow, wooble)
+    def __init__(self, x:int, y:int, side_lenght:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:int=1, starting_angle:int=0, dither_duration:int=0, hollow:bool=False, rotating:bool=False, rotation_speed:int=1, wooble:bool=False):
+        super().__init__(x, y, side_lenght, side_lenght, colors, lifespan, speed, target, friction, acceleration, (grow, grow), dither_duration, hollow, wooble)
         self.angle = starting_angle
         self.rotating = rotating
         self.rotation_speed = rotation_speed
@@ -118,6 +118,41 @@ class TriangleParticle(ShapeParticle):
         pyxel.dither(self.dither)
         if self.hollow:    pyxel.trib(x1, y1, x2, y2, x3, y3, self.colors[self.current_color])
         else:              pyxel.tri(x1, y1, x2, y2, x3, y3, self.colors[self.current_color])
+        pyxel.dither(1)
+
+class StarParticle(ShapeParticle):
+
+    def __init__(self, x:int, y:int, radius:int, points:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1,1), acceleration:tuple=(0,0), grow:int=1, dither_duration:int=0, hollow:bool=False, rotating:bool=False, rotation_speed:float=1):
+        super().__init__(x, y, radius, radius, colors, lifespan, speed, target, friction, acceleration, (grow, grow), dither_duration, hollow)
+        self.points = max(5, points)
+        self.angle = 0
+        self.rotating = rotating
+        self.rotation_speed = rotation_speed
+
+    def update(self):
+        super().update()
+
+        if self.rotating:
+            self.angle += self.rotation_speed
+
+    def draw(self):
+        pyxel.dither(self.dither)
+        step = 360 / self.points
+        r_outer = self.w
+        r_inner = self.w / 2
+        coords = []
+        for i in range(self.points * 2):
+            r = r_outer if i % 2 == 0 else r_inner
+            ang = math.radians(self.angle + step/2 * i)
+            coords.append((self.x + r * math.cos(ang), self.y + r * math.sin(ang)))
+
+        for i in range(len(coords)):
+            x1, y1 = coords[i]
+            x2, y2 = coords[(i+1) % len(coords)]
+            if self.hollow:
+                pyxel.line(x1, y1, x2, y2, self.colors[self.current_color])
+            else:
+                pyxel.tri(self.x, self.y, x1, y1, x2, y2, self.colors[self.current_color])
         pyxel.dither(1)
 
 class LineParticle(Particle):
@@ -239,7 +274,7 @@ class ShockwaveManager:
 if __name__ == "__main__":
     particle_manager = ParticleManager()
     shockwave_manager = ShockwaveManager()
-    modes = ["oval particle", "rect particle", "triangle particle"]
+    modes = ["oval particle", "rect particle", "triangle particle", "line particle", "star particle"]
     mode = modes[0]
 
     pyxel.init(228, 128, title="Particles.py Example")
@@ -276,7 +311,20 @@ if __name__ == "__main__":
                     angle = random.uniform(0, 2 * math.pi)
                     target_x = pyxel.mouse_x + math.cos(angle) * 50
                     target_y = pyxel.mouse_y + math.sin(angle) * 50
-                    particle_manager.add_particle(TriangleParticle(pyxel.mouse_x, pyxel.mouse_y, random.randint(1, 5), 1, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), starting_angle=random.randint(0, 360), dither_duration=20, rotating=True))
+                    particle_manager.add_particle(TriangleParticle(pyxel.mouse_x, pyxel.mouse_y, random.randint(1, 5), [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), starting_angle=random.randint(0, 360), dither_duration=20, rotating=True))
+            elif mode == "line particle":
+                for _ in range(5):
+                    angle = random.uniform(0, 2 * math.pi)
+                    target_x = pyxel.mouse_x + math.cos(angle) * 50
+                    target_y = pyxel.mouse_y + math.sin(angle) * 50
+                    particle_manager.add_particle(LineParticle(pyxel.mouse_x, pyxel.mouse_y, 5, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), acceleration=(0, 0.01), dither_duration=20))
+            elif mode == "star particle":
+                for _ in range(5):
+                    angle = random.uniform(0, 2 * math.pi)
+                    target_x = pyxel.mouse_x + math.cos(angle) * 50
+                    target_y = pyxel.mouse_y + math.sin(angle) * 50
+                    s = random.randint(3, 7)
+                    particle_manager.add_particle(StarParticle(pyxel.mouse_x, pyxel.mouse_y, s, 5, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), acceleration=(0, 0.01), dither_duration=20, rotating=True))
 
     def draw():
         pyxel.cls(1)
