@@ -1,11 +1,12 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 06/09/2025
+@updated : 07/09/2025
 """
 
 import colorsys
 import random
+import math
 import time
 
 def hex_to_rgb(hex_val:int)-> tuple:
@@ -101,7 +102,7 @@ def psychedelic_shifting_palette(original_palette:list, kwargs:dict={})-> list:
     for color in original_palette:
         r, g, b = hex_to_rgb(color)
         h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
-        h = (h + time.time() % 1) % 1
+        h = (h + time.time() * kwargs.get("speed", 1) % 1) % 1
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         palette.append(rgb_to_hex(int(r * 255), int(g * 255), int(b * 255)))
         
@@ -158,6 +159,48 @@ def posterize_palette(original_palette:list, kwargs:dict={})-> list:
         palette.append(rgb_to_hex(r, g, b))
     return palette
 
+def duotone_palette(original_palette:list, kwargs:dict={})-> list:
+    palette = []
+    tone1 = kwargs.get("tone_1", (0, 128, 255))
+    tone2 = kwargs.get("tone_2", (255, 0, 128))
+    for color in original_palette:
+        r, g, b = hex_to_rgb(color)
+        gray = (r + g + b) / 765
+        nr = int(tone1[0] + (tone2[0] - tone1[0]) * gray)
+        ng = int(tone1[1] + (tone2[1] - tone1[1]) * gray)
+        nb = int(tone1[2] + (tone2[2] - tone1[2]) * gray)
+        palette.append(rgb_to_hex(nr, ng, nb))
+    return palette
+
+def glitch_palette(original_palette:list, kwargs:dict={})-> list:
+    palette = []
+    for color in original_palette:
+        r, g, b = hex_to_rgb(color)
+        choice = random.choice([(r,g,b), (g,b,r), (b,r,g), (r,b,g)])
+        palette.append(rgb_to_hex(*choice))
+    return palette
+
+def vaporwave_palette(original_palette:list, kwargs:dict={})-> list:
+    palette = []
+    for color in original_palette:
+        r, g, b = hex_to_rgb(color)
+        r = min(255, int(r * 1.1 + 30))
+        g = min(255, int(g * 0.8 + 20))
+        b = min(255, int(b * 1.2 + 40))
+        palette.append(rgb_to_hex(r, g, b))
+    return palette
+
+def iridescent_palette(original_palette:list, kwargs:dict={})-> list:
+    speed = kwargs.get("speed", 2)
+    palette = []
+    for color in original_palette:
+        r, g, b = hex_to_rgb(color)
+        h, s, v = colorsys.rgb_to_hsv(r/255, g/255, b/255)
+        h = (h + math.sin(time.time() * speed) * 0.1) % 1
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        palette.append(rgb_to_hex(int(r*255), int(g*255), int(b*255)))
+    return palette
+
 if __name__ == "__main__":
     from vars import DEFAULT_PYXEL_COLORS
     import pyxel
@@ -185,7 +228,7 @@ if __name__ == "__main__":
         if pyxel.btnp(pyxel.KEY_O):
             pyxel.colors.from_list(fire_palette(DEFAULT_PYXEL_COLORS))
         if pyxel.btn(pyxel.KEY_P):
-            pyxel.colors.from_list(psychedelic_shifting_palette(DEFAULT_PYXEL_COLORS))
+            pyxel.colors.from_list(psychedelic_shifting_palette(DEFAULT_PYXEL_COLORS, {"speed":0.2}))
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.colors.from_list(sepia_palette(DEFAULT_PYXEL_COLORS))
         if pyxel.btnp(pyxel.KEY_S):
@@ -194,6 +237,14 @@ if __name__ == "__main__":
             pyxel.colors.from_list(brightness_adjusted_palette(DEFAULT_PYXEL_COLORS, {"factor":1.5}))
         if pyxel.btnp(pyxel.KEY_F):
             pyxel.colors.from_list(posterize_palette(DEFAULT_PYXEL_COLORS, {"levels":3}))
+        if pyxel.btnp(pyxel.KEY_G):
+            pyxel.colors.from_list(duotone_palette(DEFAULT_PYXEL_COLORS, {"tone_1":(0,128,255), "tone_2":(255,0,128)}))
+        if pyxel.btnp(pyxel.KEY_H):
+            pyxel.colors.from_list(glitch_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btnp(pyxel.KEY_J):
+            pyxel.colors.from_list(vaporwave_palette(DEFAULT_PYXEL_COLORS))
+        if pyxel.btn(pyxel.KEY_K):
+            pyxel.colors.from_list(iridescent_palette(DEFAULT_PYXEL_COLORS, {"speed":2}))
 
     def draw():
         pyxel.cls(0)

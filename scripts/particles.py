@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 07/09/2025
 
 TODO :
 - Particle max velocity
@@ -13,363 +13,227 @@ import random
 import pyxel
 import math
 
-class OvalParticle:
+class Particle:
 
-    def __init__(self, x:int, y:int, width:int, height:int, colors:list|int, lifespan:int, speed:int|float, target_x:int, target_y:int, growing_speed:float=0, acceleration_speed:float=0, dither_duration:int=0, gravity:float=0, wobble:bool=False, hollow:bool=False):
-        self.__x = x
-        self.__y = y
-        self.__width = width
-        self.__height = height
-        self.__colors = [colors] if isinstance(colors, int) else colors
-        self.__colors_length = len(self.__colors)
-        self.__current_color = 0
-        self.__lifespan = round(lifespan / self.__colors_length) * self.__colors_length
-        self.__starting_lifespan = self.__lifespan
-        self.__growing_speed = growing_speed
-        self.__acceleration_speed = acceleration_speed
-        self.__gravity = gravity
-        self.__wobble = wobble
-        self.__wobble_offset = random.random() * 1000
-        self.__hollow = hollow
-        self.__dither = 1
-        self.__dither_duration = max(dither_duration, 0)
+    def __init__(self, x:int, y:int, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), dither_duration:int=0, wooble:bool=False):
+        self.x, self.y = x, y
+        self.lifespan = lifespan
+        self.fx, self.fy = friction
+        self.ax, self.ay = acceleration
+        self.dither = 1
+        self.dither_duration = max(dither_duration, 0)
+        self.wooble = wooble
+        self.wooble_offset = random.random() * 1000 if wooble else 0
 
-        self.__direction_x = -1 if target_x - self.__x < 0 else 1
-        self.__direction_y = -1 if target_y - self.__y < 0 else 1
-
-        direction_x = target_x - self.__x
-        direction_y = target_y - self.__y
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-        if distance != 0:
-            direction_x /= distance
-            direction_y /= distance
-
-        self.__speed_x = direction_x * speed
-        self.__speed_y = direction_y * speed
-
-    @property
-    def lifespan(self)-> int:
-        return self.__lifespan
+        dx = target[0] - x
+        dy = target[1] - y
+        mag = (dx ** 2 + dy ** 2) ** 0.5
+        self.vx = dx / mag * speed if mag != 0 else 0
+        self.vy = dy / mag * speed if mag != 0 else 0
 
     def update(self):
-        self.__speed_x += self.__acceleration_speed * self.__direction_x
-        self.__speed_y += self.__acceleration_speed * self.__direction_y
+        self.lifespan -= 1
 
-        self.__speed_y += self.__gravity
+        self.vx *= self.fx
+        self.vy *= self.fy
+        self.vx += self.ax
+        self.vy += self.ay
+        self.x += self.vx
+        self.y += self.vy
 
-        self.__x += self.__speed_x
-        self.__y += self.__speed_y
+        if self.wooble:
+            self.x += math.sin(self.wooble_offset + pyxel.frame_count * 0.1)
+            self.y += math.cos(self.wooble_offset + pyxel.frame_count * 0.1)
 
-        if self.__wobble:
-            self.__x += math.sin(self.__wobble_offset + pyxel.frame_count * 0.1)
-            self.__y += math.cos(self.__wobble_offset + pyxel.frame_count * 0.1)
+        if self.lifespan <= self.dither_duration and self.dither_duration:
+            self.dither -= 1 / self.dither_duration
 
-        self.__lifespan -= 1
-        self.__width += self.__growing_speed
-        self.__height += self.__growing_speed
+class ShapeParticle(Particle):
 
-        if self.__width <= 0 or self.__height <= 0:
-            self.__lifespan = 0
+    def __init__(self, x:int, y:int, w:int, h:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:tuple=(1, 1), dither_duration:int=0, hollow:bool=False, wooble:bool=False):
+        super().__init__(x, y, lifespan, speed, target, friction, acceleration, dither_duration, wooble)
+        self.w, self.h = w, h
+        self.colors = [colors] if isinstance(colors, int) else colors
+        self.colors_length = len(self.colors)
+        self.current_color = 0
+        self.lifespan = round(lifespan / self.colors_length) * self.colors_length
+        self.initial_lifespan = self.lifespan
+        self.gw, self.gh = grow
+        self.hollow = hollow
 
-        if self.__lifespan <= self.__dither_duration and self.__dither_duration:
-            self.__dither -= 1 / self.__dither_duration
+    def update(self):
+        super().update()
 
-        if self.__lifespan % (self.__starting_lifespan / self.__colors_length) == 0 and self.__lifespan != 0:
-            self.__current_color = (self.__current_color + 1) % self.__colors_length
+        self.w *= self.gw
+        self.h *= self.gh
+
+        if self.w < 1 or self.h < 1:
+            self.lifespan = 0
+
+        if self.lifespan > 0 and self.lifespan % (self.initial_lifespan / self.colors_length) == 0:
+            self.current_color = (self.current_color + 1) % self.colors_length
+
+class OvalParticle(ShapeParticle):
+
+    def __init__(self, x:int, y:int, w:int, h:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:tuple=(1, 1), dither_duration:int=0, hollow:bool=False, wooble:bool=False):
+        super().__init__(x, y, w, h, colors, lifespan, speed, target, friction, acceleration, grow, dither_duration, hollow, wooble)
 
     def draw(self):
-        pyxel.dither(self.__dither)
-        if self.__hollow:
-            pyxel.ellib(self.__x - self.__width / 2, self.__y - self.__height / 2, self.__width, self.__height, self.__colors[self.__current_color])
-        else:             
-            pyxel.elli(self.__x - self.__width / 2, self.__y - self.__height / 2, self.__width, self.__height, self.__colors[self.__current_color])
+        pyxel.dither(self.dither)
+        if self.hollow:    pyxel.ellib(self.x, self.y, self.w, self.h, self.colors[self.current_color])
+        else:              pyxel.elli(self.x, self.y, self.w, self.h, self.colors[self.current_color])
         pyxel.dither(1)
 
-class RectangleParticle:
+class RectangleParticle(ShapeParticle):
 
-    def __init__(self, x:int, y:int, width:int, height:int, colors:list|int, lifespan:int,  speed:int|float, target_x:int, target_y:int, growing_speed:float=0, acceleration_speed:float=0, dither_duration:int=0, gravity:float=0, wobble:bool=False, hollow:bool=False):
-        self.__x = x
-        self.__y = y
-        self.__width = width
-        self.__height = height
-        self.__colors = [colors] if isinstance(colors, int) else colors
-        self.__colors_length = len(self.__colors)
-        self.__current_color = 0
-        self.__lifespan = round(lifespan / self.__colors_length) * self.__colors_length
-        self.__starting_lifespan = self.__lifespan
-        self.__growing_speed = growing_speed
-        self.__acceleration_speed = acceleration_speed
-        self.__gravity = gravity
-        self.__wobble = wobble
-        self.__wobble_offset = random.random() * 1000
-        self.__hollow = hollow
-        self.__dither = 1
-        self.__dither_duration = dither_duration
-
-
-        self.__direction_x = -1 if target_x - self.__x < 0 else 1
-        self.__direction_y = -1 if target_y - self.__y < 0 else 1
-
-        direction_x = target_x - self.__x
-        direction_y = target_y - self.__y
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-        if distance != 0:
-            direction_x /= distance
-            direction_y /= distance
-
-        self.__speed_x = direction_x * speed
-        self.__speed_y = direction_y * speed
-
-    @property
-    def lifespan(self)-> int:
-        return self.__lifespan
-
-    def update(self):
-        self.__speed_x += self.__acceleration_speed * self.__direction_x
-        self.__speed_y += self.__acceleration_speed * self.__direction_y
-
-        self.__speed_y += self.__gravity
-
-        self.__x += self.__speed_x
-        self.__y += self.__speed_y
-
-        if self.__wobble:
-            self.__x += math.sin(self.__wobble_offset + pyxel.frame_count * 0.1)
-            self.__y += math.cos(self.__wobble_offset + pyxel.frame_count * 0.1)
-
-        self.__lifespan -= 1
-        self.__width += self.__growing_speed
-        self.__height += self.__growing_speed
-
-        if self.__width <= 0 or self.__height <= 0:
-            self.__lifespan = 0
-
-        if self.__lifespan <= self.__dither_duration and self.__dither_duration:
-            self.__dither -= 1 / self.__dither_duration
-
-        if self.__lifespan % (self.__starting_lifespan / self.__colors_length) == 0 and self.__lifespan != 0:
-            self.__current_color = (self.__current_color + 1) % self.__colors_length
+    def __init__(self, x:int, y:int, w:int, h:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:tuple=(1, 1), dither_duration:int=0, hollow:bool=False, wooble:bool=False):
+        super().__init__(x, y, w, h, colors, lifespan, speed, target, friction, acceleration, grow, dither_duration, hollow, wooble)
 
     def draw(self):
-        pyxel.dither(self.__dither)
-        if self.__hollow:   
-            pyxel.rectb(self.__x - self.__width / 2, self.__y - self.__height / 2, self.__width, self.__height, self.__colors[self.__current_color])
-        else:             
-            pyxel.rect(self.__x - self.__width / 2, self.__y - self.__height / 2, self.__width, self.__height, self.__colors[self.__current_color])
+        pyxel.dither(self.dither)
+        if self.hollow:    pyxel.rectb(self.x, self.y, self.w, self.h, self.colors[self.current_color])
+        else:              pyxel.rect(self.x, self.y, self.w, self.h, self.colors[self.current_color])
+        pyxel.dither(1)
+        
+class TriangleParticle(ShapeParticle):
+
+    def __init__(self, x:int, y:int, w:int, h:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), grow:tuple=(1, 1), starting_angle:int=0, dither_duration:int=0, hollow:bool=False, rotating:bool=False, rotation_speed:int=1, wooble:bool=False):
+        super().__init__(x, y, w, h, colors, lifespan, speed, target, friction, acceleration, grow, dither_duration, hollow, wooble)
+        self.angle = starting_angle
+        self.rotating = rotating
+        self.rotation_speed = rotation_speed
+
+    def update(self):
+        super().update()
+
+        if self.rotating:
+            self.angle += self.rotation_speed
+
+    def draw(self):
+        d = math.sqrt(3) / 3 * self.w
+        x1, y1 = self.x + d * math.cos(math.radians(0 + self.angle)), self.y + d * math.sin(math.radians(0 + self.angle))
+        x2, y2 = self.x + d * math.cos(math.radians(120 + self.angle)), self.y + d * math.sin(math.radians(120 + self.angle))
+        x3, y3 = self.x + d * math.cos(math.radians(240 + self.angle)), self.y + d * math.sin(math.radians(240 + self.angle))
+
+        pyxel.dither(self.dither)
+        if self.hollow:    pyxel.trib(x1, y1, x2, y2, x3, y3, self.colors[self.current_color])
+        else:              pyxel.tri(x1, y1, x2, y2, x3, y3, self.colors[self.current_color])
         pyxel.dither(1)
 
-class TriangleParticle:
+class LineParticle(Particle):
 
-    def __init__(self, x:int, y:int, side_length:int, colors:list|int, lifespan:int, speed:int|float, target_x:int, target_y:int, starting_angle:int=270, growing_speed:float=0, acceleration_speed:float=0, dither_duration:int=0, gravity:float=0, wobble:bool=False, hollow:bool=False, rotating:bool=False, rotation_speed:int=1):
-        self.__x = x
-        self.__y = y
-        self.__side_length = side_length
-        self.__colors = [colors] if isinstance(colors, int) else colors
-        self.__colors_length = len(self.__colors)
-        self.__current_color = 0
-        self.__lifespan = round(lifespan / self.__colors_length) * self.__colors_length
-        self.__starting_lifespan = self.__lifespan
-        self.__starting_angle = starting_angle
-        self.__growing_speed = growing_speed
-        self.__acceleration_speed = acceleration_speed
-        self.__gravity = gravity
-        self.__wobble = wobble
-        self.__wobble_offset = random.random() * 1000
-        self.__hollow = hollow
-        self.__dither = 1
-        self.__dither_duration = dither_duration
-        self.__rotating = rotating
-        self.__rotation_speed = rotation_speed
-
-
-        self.__direction_x = -1 if target_x - self.__x < 0 else 1
-        self.__direction_y = -1 if target_y - self.__y < 0 else 1
-
-        direction_x = target_x - self.__x
-        direction_y = target_y - self.__y
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-        if distance != 0:
-            direction_x /= distance
-            direction_y /= distance
-
-        self.__speed_x = direction_x * speed
-        self.__speed_y = direction_y * speed
-
-    @property
-    def lifespan(self)-> int:
-        return self.__lifespan
+    def __init__(self, x:int, y:int, lenght:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), dither_duration:int=0, wooble:bool=False):
+        super().__init__(x, y, lifespan, speed, target, friction, acceleration, dither_duration, wooble)
+        self.lenght = lenght
+        self.colors = [colors] if isinstance(colors, int) else colors
+        self.colors_length = len(self.colors)
+        self.current_color = 0
+        self.lifespan = round(lifespan / self.colors_length) * self.colors_length
+        self.initial_lifespan = self.lifespan
 
     def update(self):
-        self.__speed_x += self.__acceleration_speed * self.__direction_x
-        self.__speed_y += self.__acceleration_speed * self.__direction_y
+        super().update()
 
-        self.__speed_y += self.__gravity
-
-        self.__x += self.__speed_x
-        self.__y += self.__speed_y
-
-        if self.__wobble:
-            self.__x += math.sin(self.__wobble_offset + pyxel.frame_count * 0.1)
-            self.__y += math.cos(self.__wobble_offset + pyxel.frame_count * 0.1)
-
-        self.__lifespan -= 1
-        self.__side_length += self.__growing_speed
-
-        if self.__side_length <= 0:
-            self.__lifespan = 0
-
-        if self.__lifespan <= self.__dither_duration and self.__dither_duration:
-            self.__dither -= 1 / self.__dither_duration
-
-        if self.__rotating:
-            self.__starting_angle += self.__rotation_speed
-
-        if self.__lifespan % (self.__starting_lifespan / self.__colors_length) == 0 and self.__lifespan != 0:
-            self.__current_color = (self.__current_color + 1) % self.__colors_length
+        if self.lifespan > 0 and self.lifespan % (self.initial_lifespan / self.colors_length) == 0:
+            self.current_color = (self.current_color + 1) % self.colors_length
 
     def draw(self):
-        d = math.sqrt(3) / 3 * self.__side_length
-        x1, y1 = self.__x + d * math.cos(math.radians(0 + self.__starting_angle)), self.__y + d * math.sin(math.radians(0 + self.__starting_angle))
-        x2, y2 = self.__x + d * math.cos(math.radians(120 + self.__starting_angle)), self.__y + d * math.sin(math.radians(120 + self.__starting_angle))
-        x3, y3 = self.__x + d * math.cos(math.radians(240 + self.__starting_angle)), self.__y + d * math.sin(math.radians(240 + self.__starting_angle))
+        vx2 = self.vx * self.fx + self.ax
+        vy2 = self.vy * self.fy + self.ay
+        mag = (vx2 ** 2 + vy2 ** 2) ** 0.5
+        x2 = self.x + (vx2 / mag * self.lenght) if mag != 0 else self.x
+        y2 = self.y + (vy2 / mag * self.lenght) if mag != 0 else self.y
 
-        pyxel.dither(self.__dither)
-        if self.__hollow:   
-            pyxel.trib(x1, y1, x2, y2, x3, y3, self.__colors[self.__current_color])
-        else:             
-            pyxel.tri(x1, y1, x2, y2, x3, y3, self.__colors[self.__current_color])
+        pyxel.dither(self.dither)
+        pyxel.line(self.x, self.y, x2, y2, self.colors[self.current_color])
         pyxel.dither(1)
 
-class SpriteParticle:
+class SpriteParticle(Particle):
 
-    def __init__(self, x:int, y:int, animation:Animation, lifespan:int, speed:int|float, target_x:int, target_y:int, acceleration_speed:float=0, dither_duration:int=0, gravity:float=0, wobble:bool=False):
-        self.__x = x
-        self.__y = y
-        self.__animation = animation
-        self.__lifespan = lifespan
-        self.__acceleration_speed = acceleration_speed
-        self.__dither = 1
-        self.__dither_duration = dither_duration
-        self.__gravity = gravity
-        self.__wobble = wobble
-        self.__wobble_offset = random.random() * 1000
-
-        self.__direction_x = -1 if target_x - self.__x < 0 else 1
-        self.__direction_y = -1 if target_y - self.__y < 0 else 1
-
-        direction_x = target_x - self.__x
-        direction_y = target_y - self.__y
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-        if distance != 0:
-            direction_x /= distance
-            direction_y /= distance
-
-        self.__speed_x = direction_x * speed
-        self.__speed_y = direction_y * speed
-
-    @property
-    def lifespan(self)-> int:
-        return self.__lifespan
+    def __init__(self, x:int, y:int, animation:Animation, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), dither_duration:int=0, wooble:bool=False):
+        super().__init__(x, y, lifespan, speed, target, friction, acceleration, dither_duration, wooble)
+        self.animation = animation
 
     def update(self):
-        self.__speed_x += self.__acceleration_speed * self.__direction_x
-        self.__speed_y += self.__acceleration_speed * self.__direction_y
+        super().update()
 
-        self.__speed_y += self.__gravity
-
-        self.__x += self.__speed_x
-        self.__y += self.__speed_y
-
-        if self.__wobble:
-            self.__x += math.sin(self.__wobble_offset + pyxel.frame_count * 0.1)
-            self.__y += math.cos(self.__wobble_offset + pyxel.frame_count * 0.1)
-
-        self.__lifespan -= 1
-
-        if self.__lifespan <= self.__dither_duration and self.__dither_duration:
-            self.__dither -= 1 / self.__dither_duration
-
-        self.__animation.update()
+        self.animation.update()
 
     def draw(self):
-        pyxel.dither(self.__dither)
-        self.__animation.draw(self.__x, self.__y)
+        pyxel.dither(self.dither)
+        self.animation.draw(self.x, self.y)
         pyxel.dither(1)
 
 class ParticleManager:
 
     def __init__(self):
-        self.__particles = []
+        self.particles = []
 
     def reset(self):
-        self.__particles = []
+        self.particles = []
 
     def add_particle(self, new_particle:OvalParticle|RectangleParticle|TriangleParticle|SpriteParticle):
-        self.__particles.append(new_particle)
+        self.particles.append(new_particle)
 
     def update(self):
-        for particle in self.__particles:
+        for particle in self.particles:
             particle.update()
 
-        self.__particles = [particle for particle in self.__particles if particle.lifespan > 0]
+        self.particles = [particle for particle in self.particles if particle.lifespan > 0]
 
     def draw(self):
-        for particle in self.__particles:
+        for particle in self.particles:
             particle.draw()
 
 class CircleShockwave:
     
     def __init__(self, x:int, y:int, max_radius:int, colors:list|int, thickness:int, growth_speed:int|float=1):
-        self.__x = x
-        self.__y = y
-        self.__radius = 0
-        self.__max_radius = max_radius
-        self.__colors = colors if isinstance(colors, list) else [colors]
-        self.__growwth_speed = growth_speed
-        self.__thickness = thickness
-        self.__alive = True
-        self.__dither = 1
-
-    @property
-    def alive(self)-> bool:
-        return self.__alive
+        self.x = x
+        self.y = y
+        self.radius = 0
+        self.max_radius = max_radius
+        self.colors = colors if isinstance(colors, list) else [colors]
+        self.growth_speed = growth_speed
+        self.thickness = thickness
+        self.alive = True
+        self.dither = 1
 
     def update(self):
-        self.__radius += self.__growwth_speed
-        if self.__dither <= 0:
-            self.__alive = False
-        if self.__radius >= self.__max_radius:
-            self.__dither -= 0.05
+        self.radius += self.growth_speed
+        if self.dither <= 0:
+            self.alive = False
+        if self.radius >= self.max_radius:
+            self.dither -= 0.05
 
     def draw(self):
-        pyxel.dither(self.__dither)
-        for i in range(int(self.__thickness)):
-            pyxel.circb(self.__x, self.__y, self.__radius - i, self.__colors[i % len(self.__colors)])
+        pyxel.dither(self.dither)
+        for i in range(int(self.thickness)):
+            pyxel.circb(self.x, self.y, self.radius - i, self.colors[i % len(self.colors)])
         pyxel.dither(1)
 
 class ShockwaveManager:
 
     def __init__(self):
-        self.__shockwaves = []
+        self.shockwaves = []
 
     def reset(self):
-        self.__shockwaves = []
+        self.shockwaves = []
 
     def add_shockwave(self, shockwave:CircleShockwave):
-        self.__shockwaves.append(shockwave)
+        self.shockwaves.append(shockwave)
 
     def remove_shockwave(self, shockwave:CircleShockwave):
-        if shockwave in self.__shockwaves:
-            self.__shockwaves.remove(shockwave)
+        if shockwave in self.shockwaves:
+            self.shockwaves.remove(shockwave)
 
     def update(self):
-        for shockwave in self.__shockwaves:
+        for shockwave in self.shockwaves:
             shockwave.update()
 
-        self.__shockwaves = [shockwave for shockwave in self.__shockwaves if shockwave.alive]
+        self.shockwaves = [shockwave for shockwave in self.shockwaves if shockwave.alive]
 
     def draw(self):
-        for shockwave in self.__shockwaves:
+        for shockwave in self.shockwaves:
             shockwave.draw()
 
 if __name__ == "__main__":
@@ -399,20 +263,20 @@ if __name__ == "__main__":
                     target_x = pyxel.mouse_x + math.cos(angle) * 50
                     target_y = pyxel.mouse_y + math.sin(angle) * 50
                     s = random.randint(1, 5)
-                    particle_manager.add_particle(OvalParticle(pyxel.mouse_x, pyxel.mouse_y, s, s, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), target_x, target_y, 0.1, -0.01, 20))
+                    particle_manager.add_particle(OvalParticle(pyxel.mouse_x, pyxel.mouse_y, s, s, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), acceleration=(0, 0.01), dither_duration=20))
             elif mode == "rect particle":
                 for _ in range(5):
                     angle = random.uniform(0, 2 * math.pi)
                     target_x = pyxel.mouse_x + math.cos(angle) * 50
                     target_y = pyxel.mouse_y + math.sin(angle) * 50
                     s = random.randint(1, 5)
-                    particle_manager.add_particle(RectangleParticle(pyxel.mouse_x, pyxel.mouse_y, s, s, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), target_x, target_y, 0.1, -0.01, 20))
+                    particle_manager.add_particle(RectangleParticle(pyxel.mouse_x, pyxel.mouse_y, s, s, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), dither_duration=20))
             elif mode == "triangle particle":
                 for _ in range(5):
                     angle = random.uniform(0, 2 * math.pi)
                     target_x = pyxel.mouse_x + math.cos(angle) * 50
                     target_y = pyxel.mouse_y + math.sin(angle) * 50
-                    particle_manager.add_particle(TriangleParticle(pyxel.mouse_x, pyxel.mouse_y, random.randint(1, 5), [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), target_x, target_y, random.randint(0, 360), 0.1, -0.01, 20, rotating=True))
+                    particle_manager.add_particle(TriangleParticle(pyxel.mouse_x, pyxel.mouse_y, random.randint(1, 5), 1, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), starting_angle=random.randint(0, 360), dither_duration=20, rotating=True))
 
     def draw():
         pyxel.cls(1)
