@@ -4,7 +4,10 @@
 @updated : 08/09/2025
 """
 
-from vars import DEFAULT_PYXEL_COLORS, LEFT, RIGHT, TOP, BOTTOM
+from tweening import Tween
+from particles import *
+from gui import Text
+from vars import *
 import random
 import pyxel
 import math
@@ -74,6 +77,7 @@ class TransitionClosingDoors(Transition):
         if self.w > pyxel.width // 2 and self.direction == 1:
             self.direction = -1
             pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
+            self.x = pyxel.width // 2
         if self.w < 0 and self.direction == -1:
             pyxel_manager.transition = None
             return
@@ -98,6 +102,7 @@ class TransitionRectangle(Transition):
             if self.w > pyxel.width and self.direction == 1:
                 self.direction = -1
                 pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
+                self.x = self.new_camera_x
             if self.w < 0 and self.direction == -1:
                 pyxel_manager.transition = None
                 return
@@ -359,25 +364,100 @@ class Cutscene:
             action.draw()
 
 
-def wait_action(duration: float):
+def parallel_action(actions:list, duration:float):
+    def update(action, dt):
+        for act in actions:
+            act.update(dt)
+
+    def draw(action):
+        for act in actions:
+            act.draw()
+
+    return CutsceneAction(duration, update, draw)
+
+def wait_action(duration:float):
     return CutsceneAction(duration)
 
-def screen_shake_action(pyxel_manager, amount: int, decay: float, duration: float):
-    def update(a, dt):
-        pyxel_manager.shake_camera(amount, decay)
-    return CutsceneAction(duration, update_action=update)
+def tween_camera_action(manager:PyxelManager, start_x:int, start_y:int, end_x:int, end_y:int, duration:float, easing=None):
+    tween_x = Tween(start_x, end_x, duration, autostart=True, easing_function=easing)
+    tween_y = Tween(start_y, end_y, duration, autostart=True, easing_function=easing)
 
-def show_text_action(text: str, duration: float, x: int, y: int, color: int = 7):
-    def draw(a):
-        pyxel.text(x, y, text, color)
-    return CutsceneAction(duration, draw_action=draw)
+    def update(action, dt):
+        manager.set_camera(int(tween_x.update(dt)), int(tween_y.update(dt)))
+
+    return CutsceneAction(duration, update)
+
+def shake_camera_action(manager:PyxelManager, amount:int, decay:float, duration:float):
+    def update(action, dt):
+        if not action.finished:
+            manager.shake_camera(amount, decay)
+
+    return CutsceneAction(duration, update)
+
+def palette_effect_action(manager:PyxelManager, effect_function, duration:float, **kwargs):
+    def update(action, dt):
+        manager.apply_palette_effect(effect_function, **kwargs)
+        if action.finished:
+            manager.reset_palette()
+
+    return CutsceneAction(duration, update)
+
+def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end_y:float, duration:float, easing=None):
+    tween_x = Tween(start_x, end_x, duration, autostart=True, easing_function=easing)
+    tween_y = Tween(start_y, end_y, duration, autostart=True, easing_function=easing)
+
+    def update(action, dt):
+        obj.x = tween_x.update(dt)
+        obj.y = tween_y.update(dt)
+
+    return CutsceneAction(duration, update)
+
+def particles_action(manager:ParticleManager, particle_factory, count:int, duration:float=0.01):
+    def update(action, dt):
+        for _ in range(count):
+            manager.add_particle(particle_factory())
+
+    return CutsceneAction(duration, update)
+
+def shockwave_action(manager:ShockwaveManager, shockwave:CircleShockwave, duration:float=0.01):
+    def update(action, dt):
+        manager.add_shockwave(shockwave)
+
+    return CutsceneAction(duration, update)
+
+def typewriter_text_action(text:Text, duration:float):
+    visible_chars = [0]
+    total_chars = len(text.text)
+
+    def update(action, dt):
+        text.update()
+        progress = min(action.elapsed / duration, 1.0)
+        visible_chars[0] = int(total_chars * progress)
+
+    def draw(action):
+        partial_text = text.text[:visible_chars[0]]
+        Text(
+            partial_text, text.x, text.y,
+            text.text_colors, text.font_size, text.font,
+            anchor=text._Text__anchor,
+            relative=text.relative,
+            color_mode=text.color_mode,
+            wavy=text.wavy,
+            shadow=text.shadow, shadow_color=text.shadow_color,
+            outline=text.outline, outline_color=text.outline_color,
+            glitch_intensity=text.glitch_intensity
+        ).draw()
+
+    return CutsceneAction(duration, update, draw)
 
 if __name__ == "__main__":
+    from tweening import ease_out_quint
+
     def update_1():
         if pyxel.btnp(pyxel.KEY_B):
             pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):
-            pm.change_scene_transition(TransitionRectangle(pm, 1, 2, 1, RIGHT))
+            pm.change_scene_transition(TransitionDither(1, 0.05, 1))
         if pyxel.btnp(pyxel.KEY_C):
             pm.change_scene_transition(TransitionTriangle(2, 5, 1, action=lambda: cutscene.start()))
 
@@ -412,9 +492,10 @@ if __name__ == "__main__":
     pm = PyxelManager(228, 128, [s1, s2, s3], mouse=True)
 
     cutscene = Cutscene()
-    cutscene.add_action(show_text_action("Our hero enters...", 2, 10, 10, 7))
-    cutscene.add_action(screen_shake_action(pm, 4, 0.2, 1))
+
     cutscene.add_action(wait_action(1))
-    cutscene.add_action(show_text_action("A new journey begins!", 2, 10, 30, 10))
+    cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
+    cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
+    cutscene.add_action(wait_action(0.5))
 
     pm.run()
