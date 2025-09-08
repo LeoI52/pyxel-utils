@@ -1,10 +1,10 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 07/09/2025
+@updated : 08/09/2025
 """
 
-from vars import DEFAULT_PYXEL_COLORS
+from vars import DEFAULT_PYXEL_COLORS, LEFT, RIGHT, TOP, BOTTOM
 import random
 import pyxel
 import math
@@ -80,45 +80,42 @@ class TransitionClosingDoors(Transition):
         pyxel.rect(pyxel_manager.camera_x, pyxel_manager.camera_y, self.w, pyxel.height, self.transition_color)
         pyxel.rect(self.x, pyxel_manager.camera_y, self.w, pyxel.height, self.transition_color)
 
-class TransitionRectangleRightLeft(Transition):
+class TransitionRectangle(Transition):
 
-    def __init__(self, pyxel_manager, new_scene_id:int, speed:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None):
+    def __init__(self, pyxel_manager, new_scene_id:int, speed:int, transition_color:int, dir:int=LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None):
         super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action)
+        self.dir = dir
         self.w = 0
-        self.x = pyxel_manager.camera_x + pyxel.width
+        self.x = pyxel_manager.camera_x + pyxel.width if dir == RIGHT else pyxel_manager.camera_x
+        self.y = pyxel_manager.camera_y + pyxel.height if dir == BOTTOM else pyxel_manager.camera_y
 
     def handle(self, pyxel_manager):
-        self.w += self.speed * self.direction
-        if self.direction == 1:
-            self.x -= self.speed
+        if self.dir in [RIGHT, LEFT]:
+            self.w += self.speed * self.direction
 
-        if self.w > pyxel.width and self.direction == 1:
-            self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
-        if self.w < 0 and self.direction == -1:
-            pyxel_manager.transition = None
-            return
-        pyxel.rect(self.x, pyxel_manager.camera_y, self.w, pyxel.height, self.transition_color)
+            if (self.direction == 1 and self.dir == RIGHT) or (self.direction == -1 and self.dir == LEFT):
+                self.x = self.x - self.speed if self.dir == RIGHT else self.x + self.speed
+            if self.w > pyxel.width and self.direction == 1:
+                self.direction = -1
+                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
+            if self.w < 0 and self.direction == -1:
+                pyxel_manager.transition = None
+                return
+            
+            pyxel.rect(self.x, pyxel_manager.camera_y, self.w, pyxel.height, self.transition_color)
+        elif self.dir in [TOP, BOTTOM]:
+            self.w += self.speed * self.direction
 
-class TransitionRectangleLeftRight(Transition):
-
-    def __init__(self, pyxel_manager, new_scene_id:int, speed:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None):
-        super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action)
-        self.w = 0
-        self.x = pyxel_manager.camera_x
-
-    def handle(self, pyxel_manager):
-        self.w += self.speed * self.direction
-        if self.direction == -1:
-            self.x += self.speed
-
-        if self.w > pyxel.width and self.direction == 1:
-            self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
-        if self.w < 0 and self.direction == -1:
-            pyxel_manager.transition = None
-            return
-        pyxel.rect(self.x, pyxel_manager.camera_y, self.w, pyxel.height, self.transition_color)
+            if (self.direction == 1 and self.dir == BOTTOM) or (self.direction == -1 and self.dir == TOP):
+                self.y = self.y - self.speed if self.dir == BOTTOM else self.y + self.speed
+            if self.w > pyxel.height and self.direction == 1:
+                self.direction = -1
+                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action)
+            if self.w < 0 and self.direction == -1:
+                pyxel_manager.transition = None
+                return
+            
+            pyxel.rect(pyxel_manager.camera_x, self.y, pyxel.width, self.w, self.transition_color)
 
 class TransitionOuterCircle(Transition):
 
@@ -297,12 +294,92 @@ class Scene:
         self.palette = palette
         self.screen_mode = screen_mode
 
+class CutsceneAction:
+
+    def __init__(self, duration:float, update_action=None, draw_action=None):
+        self.duration = duration
+        self.update_action = update_action
+        self.draw_action = draw_action
+        self.elapsed = 0
+        self.finished = False
+
+    def update(self, dt:float):
+        if self.finished:
+            return
+        
+        if self.update_action:
+            self.update_action(self, dt)
+
+        self.elapsed += dt
+        if self.elapsed >= self.duration:
+            self.finished = True
+
+    def draw(self):
+        if self.draw_action and not self.finished:
+            self.draw_action(self)
+
+class Cutscene:
+
+    def __init__(self):
+        self.actions = []
+        self.action_index = 0
+        self.active = False
+        self.finished = False
+
+    def add_action(self, action:CutsceneAction):
+        self.actions.append(action)
+
+    def start(self):
+        self.active = True
+        self.finished = False
+        self.action_index = 0
+        for action in self.actions:
+            action.elapsed = 0
+            action.finished = False
+
+    def update(self, dt:float):
+        if not self.active or self.finished:
+            return
+        
+        if self.action_index < len(self.actions):
+            action = self.actions[self.action_index]
+            action.update(dt)
+            if action.finished:
+                self.action_index += 1
+        else:
+            self.finished = True
+            self.active = False
+
+    def draw(self):
+        if not self.active or self.finished:
+            return
+        
+        if self.action_index < len(self.actions):
+            action = self.actions[self.action_index]
+            action.draw()
+
+
+def wait_action(duration: float):
+    return CutsceneAction(duration)
+
+def screen_shake_action(pyxel_manager, amount: int, decay: float, duration: float):
+    def update(a, dt):
+        pyxel_manager.shake_camera(amount, decay)
+    return CutsceneAction(duration, update_action=update)
+
+def show_text_action(text: str, duration: float, x: int, y: int, color: int = 7):
+    def draw(a):
+        pyxel.text(x, y, text, color)
+    return CutsceneAction(duration, draw_action=draw)
+
 if __name__ == "__main__":
     def update_1():
         if pyxel.btnp(pyxel.KEY_B):
             pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):
-            pm.change_scene_transition(TransitionClosingDoors(1, 2, 1))
+            pm.change_scene_transition(TransitionRectangle(pm, 1, 2, 1, RIGHT))
+        if pyxel.btnp(pyxel.KEY_C):
+            pm.change_scene_transition(TransitionTriangle(2, 5, 1, action=lambda: cutscene.start()))
 
     def draw_1():
         pyxel.cls(10)
@@ -316,7 +393,28 @@ if __name__ == "__main__":
     def draw_2():
         pyxel.cls(3)
 
+    def update_3():
+        cutscene.update(1/60)
+
+        if cutscene.finished:
+            pm.change_scene_transition(TransitionClosingDoors(pm, 0, 5, 1))
+
+    def draw_3():
+        pyxel.cls(12)
+
+        pyxel.rect(10, 10, 50, 50, 8)
+
+        cutscene.draw()
+
     s1 = Scene(0, "Game.py Example - Scene 1", update_1, draw_1)
     s2 = Scene(1, "Game.py Example - Scene 2", update_2, draw_2)
-    pm = PyxelManager(228, 128, [s1, s2], mouse=True)
+    s3 = Scene(2, "Game.py Example - Scene 3", update_3, draw_3)
+    pm = PyxelManager(228, 128, [s1, s2, s3], mouse=True)
+
+    cutscene = Cutscene()
+    cutscene.add_action(show_text_action("Our hero enters...", 2, 10, 10, 7))
+    cutscene.add_action(screen_shake_action(pm, 4, 0.2, 1))
+    cutscene.add_action(wait_action(1))
+    cutscene.add_action(show_text_action("A new journey begins!", 2, 10, 30, 10))
+
     pm.run()

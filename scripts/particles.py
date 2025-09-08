@@ -155,22 +155,11 @@ class StarParticle(ShapeParticle):
                 pyxel.tri(self.x, self.y, x1, y1, x2, y2, self.colors[self.current_color])
         pyxel.dither(1)
 
-class LineParticle(Particle):
+class LineParticle(ShapeParticle):
 
     def __init__(self, x:int, y:int, lenght:int, colors:int|list, lifespan:int, speed:int, target:tuple, friction:tuple=(1, 1), acceleration:tuple=(0, 0), dither_duration:int=0, wooble:bool=False):
-        super().__init__(x, y, lifespan, speed, target, friction, acceleration, dither_duration, wooble)
+        super().__init__(x, y, 1, 1, colors, lifespan, speed, target, friction, acceleration, (1, 1), dither_duration, False, wooble)
         self.lenght = lenght
-        self.colors = [colors] if isinstance(colors, int) else colors
-        self.colors_length = len(self.colors)
-        self.current_color = 0
-        self.lifespan = round(lifespan / self.colors_length) * self.colors_length
-        self.initial_lifespan = self.lifespan
-
-    def update(self):
-        super().update()
-
-        if self.lifespan > 0 and self.lifespan % (self.initial_lifespan / self.colors_length) == 0:
-            self.current_color = (self.current_color + 1) % self.colors_length
 
     def draw(self):
         vx2 = self.vx * self.fx + self.ax
@@ -199,6 +188,30 @@ class SpriteParticle(Particle):
         self.animation.draw(self.x, self.y)
         pyxel.dither(1)
 
+class TextParticle(Particle):
+
+    def __init__(self, x:int, y:int, text:str, colors:int|list, lifespan:int, speed:int, target:tuple, background_color:int=None, friction:tuple=(1, 1), acceleration:tuple=(0, 0), dither_duration:int=0, wooble:bool=False):
+        super().__init__(x, y, lifespan, speed, target, friction, acceleration, dither_duration, wooble)
+        self.text = text
+        self.background_color = background_color
+        self.colors = [colors] if isinstance(colors, int) else colors
+        self.colors_length = len(self.colors)
+        self.current_color = 0
+        self.lifespan = round(lifespan / self.colors_length) * self.colors_length
+        self.initial_lifespan = self.lifespan
+
+    def update(self):
+        super().update()
+
+        if self.lifespan > 0 and self.lifespan % (self.initial_lifespan / self.colors_length) == 0:
+            self.current_color = (self.current_color + 1) % self.colors_length
+
+    def draw(self):
+        pyxel.dither(self.dither)
+        if self.background_color is not None:    pyxel.rect(self.x - 1, self.y - 1, len(self.text) * 4 + 2, 8, self.background_color)
+        pyxel.text(self.x, self.y, self.text, self.colors[self.current_color])
+        pyxel.dither(1)
+
 class ParticleManager:
 
     def __init__(self):
@@ -207,7 +220,7 @@ class ParticleManager:
     def reset(self):
         self.particles = []
 
-    def add_particle(self, new_particle:OvalParticle|RectangleParticle|TriangleParticle|SpriteParticle):
+    def add_particle(self, new_particle:OvalParticle|RectangleParticle|TriangleParticle|SpriteParticle|StarParticle|LineParticle|TextParticle):
         self.particles.append(new_particle)
 
     def update(self):
@@ -274,7 +287,7 @@ class ShockwaveManager:
 if __name__ == "__main__":
     particle_manager = ParticleManager()
     shockwave_manager = ShockwaveManager()
-    modes = ["oval particle", "rect particle", "triangle particle", "line particle", "star particle"]
+    modes = ["oval particle", "rect particle", "triangle particle", "line particle", "star particle", "text particle"]
     mode = modes[0]
 
     pyxel.init(228, 128, title="Particles.py Example")
@@ -325,6 +338,11 @@ if __name__ == "__main__":
                     target_y = pyxel.mouse_y + math.sin(angle) * 50
                     s = random.randint(3, 7)
                     particle_manager.add_particle(StarParticle(pyxel.mouse_x, pyxel.mouse_y, s, 5, [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), acceleration=(0, 0.01), dither_duration=20, rotating=True))
+            elif mode == "text particle":
+                angle = random.uniform(0, 2 * math.pi)
+                target_x = pyxel.mouse_x + math.cos(angle) * 50
+                target_y = pyxel.mouse_y + math.sin(angle) * 50
+                particle_manager.add_particle(TextParticle(pyxel.mouse_x, pyxel.mouse_y, f"-{random.randint(1, 5)}", [11, 10, 9, 8], 60, random.uniform(0.5, 1.5), (target_x, target_y), 7, acceleration=(0, 0.01), dither_duration=20))
 
     def draw():
         pyxel.cls(1)

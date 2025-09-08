@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 07/09/2025
 
 TODO :
 - Checkbox
@@ -9,9 +9,8 @@ TODO :
 - Scrollable Panel
 """
 
-from other import get_anchored_position, clamp
-from draw import Sprite, rounded_rect
-from animations import lerp
+from draw import rounded_rect, rounded_rectb
+from other import get_anchored_position
 from vars import *
 import random
 import pyxel
@@ -19,444 +18,253 @@ import math
 
 class Text:
 
-    def __init__(self, text:str, x:int, y:int, text_colors:int|list, font_size:int=0, anchor:int=ANCHOR_TOP_LEFT, relative:bool=False, color_mode:int=NORMAL_COLOR_MODE, color_speed:int=5, wavy:bool=False, wave_speed:int=10, amplitude:int=3, shadow:bool=False, shadow_color:int=0, shadow_offset:int=1, glitch_intensity:int=0):
+    def __init__(self, text:str, x:int, y:int, text_colors:int|list, font_size:int=0, font:dict=FONT_DEFAULT, anchor:int=ANCHOR_TOP_LEFT, relative:bool=False, color_mode:int=NORMAL_COLOR_MODE, color_change_time:int=5, wavy:bool=False, wave_speed:int=10, amplitude:int=3, shadow:bool=False, shadow_color:int=0, shadow_offset:int=1, outline:bool=False, outline_color:int=0, glitch_intensity:int=0):
         self.text = text
         self.x, self.y = x, y
-        self.__font_size = font_size
+        self.font_size = font_size
+        self.font = font
         self.__anchor = anchor
-        self.__relative = relative
-        self.__wavy = wavy
-        self.__wave_speed = wave_speed
-        self.__amplitude = amplitude
-        self.__shadow = shadow
-        self.__shadow_color = shadow_color
-        self.__shadow_offset = shadow_offset
-        self.__glitch_intensity = glitch_intensity
+        self.relative = relative
+        self.wavy = wavy
+        self.wave_speed = wave_speed
+        self.amplitude = amplitude
+        self.shadow = shadow
+        self.shadow_color = shadow_color
+        self.shadow_offset = shadow_offset
+        self.outline = outline
+        self.outline_color = outline_color
+        self.glitch_intensity = glitch_intensity
 
-        self.__text_colors = [text_colors] if isinstance(text_colors, int) else text_colors
-        self.__original_text_colors = [x for x in self.__text_colors]
-        self.__color_mode = color_mode
-        self.__color_speed = color_speed
+        self.text_colors = [text_colors] if isinstance(text_colors, int) else text_colors
+        self.original_text_colors = [x for x in self.text_colors]
+        self.color_mode = color_mode
+        self.color_change_time = color_change_time
         self.__last_change_color_time = pyxel.frame_count
 
         _, text_height = text_size(text, font_size)
         _, self.y = get_anchored_position(0, y, 0, text_height, anchor)
 
     def __draw_line(self, text:str, y:int, camera_x:int=0, camera_y:int=0):
-        text_width, _ = text_size(text, self.__font_size)
+        text_width, _ = text_size(text, self.font_size)
         x, _ = get_anchored_position(self.x, 0, text_width, 0, self.__anchor)
 
-        if self.__relative:
+        if self.relative:
             x += camera_x
             y += camera_y
 
-        if self.__shadow:
-            Text(text, x + self.__shadow_offset, y + self.__shadow_offset, self.__shadow_color, self.__font_size, wavy=self.__wavy, wave_speed=self.__wave_speed, amplitude=self.__amplitude).draw()
+        if self.shadow:
+            Text(text, x + self.shadow_offset, y + self.shadow_offset, self.shadow_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
 
-        if self.__font_size > 0:
+        if self.outline:
+            Text(text, x - 1, y, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x + 1, y, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x, y - 1, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x, y + 1, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+
+        if self.font_size > 0:
             for char_index, char in enumerate(text):
-                    x += random.uniform(-self.__glitch_intensity, self.__glitch_intensity)
-                    char_y = y + math.cos(pyxel.frame_count / self.__wave_speed + char_index * 0.3) * self.__amplitude if self.__wavy else y
-                    char_y += random.uniform(-self.__glitch_intensity, self.__glitch_intensity)
+                    x += random.uniform(-self.glitch_intensity, self.glitch_intensity)
+                    char_y = y + math.cos(pyxel.frame_count / self.wave_speed + char_index * 0.3) * self.amplitude if self.wavy else y
+                    char_y += random.uniform(-self.glitch_intensity, self.glitch_intensity)
 
-                    if char in characters_matrices:
-                        char_matrix = characters_matrices[char]
-                        char_width = len(char_matrix[0]) * self.__font_size
+                    if char in self.font:
+                        char_matrix = self.font[char]
+                        char_width = len(char_matrix[0]) * self.font_size
                         
                         for row_index, row in enumerate(char_matrix):
                             for col_index, pixel in enumerate(row):
                                 if pixel:
-                                    pyxel.rect(x + col_index * self.__font_size, char_y + row_index * self.__font_size + (1 * self.__font_size if char in "gjpqy" else 0), self.__font_size, self.__font_size, self.__text_colors[char_index % len(self.__text_colors)])
+                                    pyxel.rect(x + col_index * self.font_size, char_y + row_index * self.font_size + (1 * self.font_size if char in "gjpqy" else 0), self.font_size, self.font_size, self.text_colors[char_index % len(self.text_colors)])
                         
                         x += char_width + 1
         else:
             for char_index, char in enumerate(text):
-                x += random.uniform(-self.__glitch_intensity, self.__glitch_intensity)
-                char_y = y + math.cos(pyxel.frame_count / self.__wave_speed + char_index * 0.3) * self.__amplitude if self.__wavy else y
-                char_y += random.uniform(-self.__glitch_intensity, self.__glitch_intensity)
-                pyxel.text(x, char_y, char, self.__text_colors[char_index % len(self.__text_colors)])
+                x += random.uniform(-self.glitch_intensity, self.glitch_intensity)
+                char_y = y + math.cos(pyxel.frame_count / self.wave_speed + char_index * 0.3) * self.amplitude if self.wavy else y
+                char_y += random.uniform(-self.glitch_intensity, self.glitch_intensity)
+                pyxel.text(x, char_y, char, self.text_colors[char_index % len(self.text_colors)])
                 x += 4
 
     def update(self):
-        if self.__color_mode != NORMAL_COLOR_MODE and pyxel.frame_count - self.__last_change_color_time >= self.__color_speed:
-            if self.__color_mode == ROTATING_COLOR_MODE:
+        if self.color_mode != NORMAL_COLOR_MODE and pyxel.frame_count - self.__last_change_color_time >= self.color_change_time:
+            if self.color_mode == ROTATING_COLOR_MODE:
                 self.__last_change_color_time = pyxel.frame_count
-                self.__text_colors = [self.__text_colors[-1]] + self.__text_colors[:-1]
-            elif self.__color_mode == RANDOM_COLOR_MODE:
+                self.text_colors = [self.text_colors[-1]] + self.text_colors[:-1]
+            elif self.color_mode == RANDOM_COLOR_MODE:
                 self.__last_change_color_time = pyxel.frame_count
-                self.__text_colors = [random.choice(self.__original_text_colors) for _ in range(len(self.text))]
+                self.text_colors = [random.choice(self.original_text_colors) for _ in range(len(self.text))]
 
     def draw(self, camera_x:int=0, camera_y:int=0):
         if "\n" in self.text:
             lines = self.text.split("\n")
             for i, line in enumerate(lines):
-                if self.__font_size > 0:
-                    self.__draw_line(line, self.y + i * (9 * self.__font_size), camera_x, camera_y)
+                if self.font_size > 0:
+                    self.__draw_line(line, self.y + i * (11 * self.font_size), camera_x, camera_y)
                 else:
-                    self.__draw_line(line, self.y + i * 6, camera_x, camera_y)
+                    self.__draw_line(line, self.y + i * 9, camera_x, camera_y)
         else:
             self.__draw_line(self.text, self.y, camera_x, camera_y)
 
 class Button:
 
-    def __init__(self, text:str, x:int, y:int, background_color:int, text_colors:list|int, hover_background_color:int, hover_text_colors:list|int, font_size:int=1, border:bool=False, border_color:int=0, color_mode:int=NORMAL_COLOR_MODE, color_speed:int=10, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT, command=None):
-        self.__x = x
-        self.__y = y
+    def __init__(self, text:str, x:int, y:int, corner_radius:int, background_color:int, text_colors:list|int, hover_background_color:int, hover_text_colors:list|int, font_size:int=1, font:dict=FONT_DEFAULT, border:bool=False, border_color:int=0, color_mode:int=NORMAL_COLOR_MODE, color_change_time:int=10, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT, command=None):
+        self.x = x
+        self.y = y
+        self.corner_radius = corner_radius
         self.__width, self.__height = text_size(text, font_size)
-        self.__width += 4 if border else 2
+        self.__height -= 2 * font_size if font_size > 0 else 2
+        self.__width += 4 + corner_radius if border else 2 + corner_radius
         self.__height += 4 if border else 2
-        self.__background_color = background_color
-        self.__hover_background_color = hover_background_color
-        self.__border = border
-        self.__border_color = border_color
-        self.__relative = relative
-        self.__command = command
+        self.background_color = background_color
+        self.hover_background_color = hover_background_color
+        self.border = border
+        self.border_color = border_color
+        self.relative = relative
+        self.command = command
 
-        self.__x, self.__y = get_anchored_position(self.__x, self.__y, self.__width, self.__height, anchor)
+        self.x, self.y = get_anchored_position(self.x, self.y, self.__width, self.__height, anchor)
 
-        self.__text = Text(text, self.__x + 2 if border else self.__x + 1, self.__y + 2 if border else self.__y + 1, text_colors, font_size, color_mode=color_mode, color_speed=color_speed, relative=relative)
-        self.__hover_text = Text(text, self.__x + 2 if border else self.__x + 1, self.__y + 2 if border else self.__y + 1, hover_text_colors, font_size, color_mode=color_mode, color_speed=color_speed, relative=relative)
+        self.text = Text(text, self.x + 2 + corner_radius / 2 if border else self.x + 1, self.y + 2 if border else self.y + 1, text_colors, font_size, font, color_mode=color_mode, color_change_time=color_change_time, relative=relative)
+        self.hover_text = Text(text, self.x + 2 + corner_radius / 2 if border else self.x + 1 + corner_radius / 2, self.y + 2 if border else self.y + 1, hover_text_colors, font_size, font, color_mode=color_mode, color_change_time=color_change_time, relative=relative)
 
     def is_hovered(self, camera_x:int=0, camera_y:int=0)-> bool:
-        if self.__x <= pyxel.mouse_x < self.__x + self.__width and self.__y <= pyxel.mouse_y < self.__y + self.__height and self.__relative:
+        if self.x <= pyxel.mouse_x < self.x + self.__width and self.y <= pyxel.mouse_y < self.y + self.__height and self.relative:
             return True
-        if self.__x <= camera_x + pyxel.mouse_x < self.__x + self.__width and self.__y <= camera_y + pyxel.mouse_y < self.__y + self.__height and not self.__relative:
+        if self.x <= camera_x + pyxel.mouse_x < self.x + self.__width and self.y <= camera_y + pyxel.mouse_y < self.y + self.__height and not self.relative:
             return True
         
     def update(self, camera_x:int=0, camera_y:int=0):
-        self.__text.update()
-        self.__hover_text.update()
-        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.is_hovered(camera_x, camera_y) and self.__command:
-            self.__command()
+        self.text.update()
+        self.hover_text.update()
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.is_hovered(camera_x, camera_y) and self.command:
+            self.command()
 
     def draw(self, camera_x:int=0, camera_y:int=0):
-        x = camera_x + self.__x if self.__relative else self.__x
-        y = camera_y + self.__y if self.__relative else self.__y
+        x = camera_x + self.x if self.relative else self.x
+        y = camera_y + self.y if self.relative else self.y
         if self.is_hovered(camera_x, camera_y):
-            pyxel.rect(x, y, self.__width, self.__height, self.__hover_background_color)
-            self.__hover_text.draw(camera_x, camera_y)
+            rounded_rect(x, y, self.__width, self.__height, self.corner_radius, self.hover_background_color)
+            self.hover_text.draw(camera_x, camera_y)
         else:
-            pyxel.rect(x, y, self.__width, self.__height, self.__background_color)
-            self.__text.draw(camera_x, camera_y)
-        if self.__border:
-            pyxel.rectb(x, y, self.__width, self.__height, self.__border_color)
-
-class IconButton:
-
-    def __init__(self, x:int, y:int, background_color:int, hover_background_color:int, sprite:Sprite, border:bool=False, border_color:int=0, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT, command=None):
-        self.__x = x + 1 if not border else x + 2
-        self.__y = y + 1 if not border else y + 2
-        self.__width = sprite.w + 2 if not border else sprite.w + 4
-        self.__height = sprite.h + 2 if not border else sprite.h + 4
-        self.__background_color = background_color
-        self.__hover_background_color = hover_background_color
-        self.__sprite = sprite
-        self.__border = border
-        self.__border_color = border_color
-        self.__relative = relative
-        self.__command = command
-
-        self.__x, self.__y = get_anchored_position(self.__x, self.__y, self.__width, self.__height, anchor)
-
-    def is_hovered(self, camera_x:int=0, camera_y:int=0)-> bool:
-        if self.__x - 2 < pyxel.mouse_x < self.__x + self.__sprite.w + 1 and self.__y - 2 < pyxel.mouse_y < self.__y + self.__sprite.h + 1 and self.__relative:
-            return True
-        elif self.__x - 2 < camera_x + pyxel.mouse_x < self.__x + self.__sprite.w + 1 and self.__y - 2 < camera_y + pyxel.mouse_y < self.__y + self.__sprite.h + 1 and not self.__relative:
-            return True
-        
-    def update(self, camera_x:int=0, camera_y:int=0):
-        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.is_hovered(camera_x, camera_y) and self.__command:
-            self.__command()
-
-    def draw(self, camera_x:int=0, camera_y:int=0):
-        x = camera_x + self.__x if self.__relative else self.__x
-        y = camera_y + self.__y if self.__relative else self.__y
-
-        if self.__border:
-            pyxel.rectb(x - 2, y - 2, self.__sprite.w + 4, self.__sprite.h + 4, self.__border_color)
-        if self.is_hovered(camera_x, camera_y):
-            pyxel.rect(x - 1, y - 1, self.__sprite.w + 2, self.__sprite.h + 2, self.__hover_background_color)
-        else:
-            pyxel.rect(x - 1, y - 1, self.__sprite.w + 2, self.__sprite.h + 2, self.__background_color)
-        pyxel.blt(x, y, self.__sprite.img, self.__sprite.u, self.__sprite.v, self.__sprite.w, self.__sprite.h, self.__sprite.colkey)
+            rounded_rect(x, y, self.__width, self.__height, self.corner_radius, self.background_color)
+            self.text.draw(camera_x, camera_y)
+        if self.border:
+            rounded_rectb(x, y, self.__width, self.__height, self.corner_radius, self.border_color)
 
 class Entry:
 
-    def __init__(self, x:int, y:int, width:int, text_color:int, unfocused_color:int, focused_color:int, font_size:int=1, text_cursor_color:int=0, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT):
-        self.__x = x
-        self.__y = y
-        self.__width = width
+    def __init__(self, x:int, y:int, width:int, corner_radius:int, text_color:int, unfocused_color:int, focused_color:int, font_size:int=1, font:dict=FONT_DEFAULT, text_cursor_color:int=0, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT):
+        self.x = x
+        self.y = y
+        self.width = width
         self.__height = text_size("A", font_size)[1]
-        self.__font_size = font_size
-        self.__unfocused_color = unfocused_color
-        self.__focused_color = focused_color
-        self.__focused = False
-        self.__text_cursor_color = text_cursor_color
-        self.__relative = relative
+        self.__height -= 2 * font_size if font_size > 0 else 2
+        self.corner_radius = corner_radius
+        self.font_size = font_size
+        self.unfocused_color = unfocused_color
+        self.focused_color = focused_color
+        self.focused = False
+        self.text_cursor_color = text_cursor_color
+        self.relative = relative
 
-        self.__x, self.__y = get_anchored_position(self.__x, self.__y, self.__width, self.__height, anchor)
+        self.x, self.y = get_anchored_position(self.x, self.y, self.width, self.__height, anchor)
 
-        self.__text = Text("", self.__x + 1, self.__y + 1, text_color, font_size, relative=relative)
+        self.text = Text("", self.x + 1 + self.corner_radius / 2, self.y + 1, text_color, font_size, font, relative=relative)
 
     def is_hovered(self, camera_x:int=0, camera_y:int=0)-> bool:
-        if self.__x <= pyxel.mouse_x < self.__x + self.__width and self.__y <= pyxel.mouse_y < self.__y + self.__height + 2 and self.__relative:
+        if self.x <= pyxel.mouse_x < self.x + self.width and self.y <= pyxel.mouse_y < self.y + self.__height + 2 and self.relative:
             return True
-        elif self.__x <= camera_x + pyxel.mouse_x < self.__x + self.__width and self.__y <= camera_y + pyxel.mouse_y < self.__y + self.__height + 2 and not self.__relative:
+        elif self.x <= camera_x + pyxel.mouse_x < self.x + self.width and self.y <= camera_y + pyxel.mouse_y < self.y + self.__height + 2 and not self.relative:
             return True
         
     def update(self, camera_x:int=0, camera_y:int=0):
-        self.__text.update()
+        self.text.update()
         if self.is_hovered(camera_x, camera_y) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            self.__focused = True
+            self.focused = True
         elif pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            self.__focused = False
+            self.focused = False
 
-        if self.__focused:
+        if self.focused:
             if pyxel.btnp(pyxel.KEY_RETURN):
-                self.__focused = False
+                self.focused = False
             elif pyxel.btnp(pyxel.KEY_BACKSPACE):
-                self.__text.text = self.__text.text[:-1]
+                self.text.text = self.text.text[:-1]
             for k, v in keys_to_chars.items():
                 if pyxel.btnp(pyxel.KEY_LSHIFT, hold=1, repeat=1) and pyxel.btnp(k):
-                    self.__text.text += v.upper()
+                    self.text.text += v.upper()
                 elif pyxel.btnp(k):
-                    self.__text.text += v
-            if text_size(self.__text.text, self.__font_size)[0] > self.__width - 1:
-                self.__text.text = self.__text.text[:-1]
-                self.__focused = False
+                    self.text.text += v
+            if text_size(self.text.text, self.font_size)[0] > self.width - 1 - self.corner_radius:
+                self.text.text = self.text.text[:-1]
+                self.focused = False
 
     def draw(self, camera_x:int=0, camera_y:int=0):
-        x = camera_x + self.__x if self.__relative else self.__x
-        y = camera_y + self.__y if self.__relative else self.__y
-        pyxel.rect(x, y, self.__width, self.__height + 2, self.__focused_color if self.__focused else self.__unfocused_color)
-        self.__text.draw(camera_x, camera_y)
-        if self.__focused and pyxel.frame_count % (30 * 2) < 30:
-            pyxel.rect(x + self.__font_size + 1 + text_size(self.__text.text, self.__font_size)[0], y + 1, self.__font_size, self.__height, self.__text_cursor_color)
+        x = camera_x + self.x if self.relative else self.x
+        y = camera_y + self.y if self.relative else self.y
+        rounded_rect(x, y, self.width, self.__height + 2, self.corner_radius, self.focused_color if self.focused else self.unfocused_color)
+        self.text.draw(camera_x, camera_y)
+        if self.focused and pyxel.frame_count % (30 * 2) < 30:
+            pyxel.rect(x + self.font_size + 1 + self.corner_radius / 2 + text_size(self.text.text, self.font_size)[0], y + 1, self.font_size, self.__height, self.text_cursor_color)
 
 class UIBar:
 
-    def __init__(self, x:int, y:int, width:int, height:int, border_color:int, bar_color:int, starting_value:int, max_value:int, relative:bool=True, horizontal:bool=True, regen:bool=False, speed_regen:int=0.5, value_regen:int=1, anchor:int=ANCHOR_TOP_LEFT):
-        self.__x = x
-        self.__y = y
-        self.__width = width
-        self.__height = height
-        self.__border_color = border_color
-        self.__bar_color = bar_color
+    def __init__(self, x:int, y:int, width:int, height:int, corner_radius:int, border_color:int, bar_color:int, starting_value:int, max_value:int, relative:bool=True, horizontal:bool=True, regen:bool=False, speed_regen:int=0.5, value_regen:int=1, anchor:int=ANCHOR_TOP_LEFT):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.corner_radius = corner_radius
+        self.border_color = border_color
+        self.bar_color = bar_color
 
-        self.__current_value = starting_value
-        self.__max_value = max_value
-        self.__relative = relative
-        self.__horizontal = horizontal
+        self.value = starting_value
+        self.max_value = max_value
+        self.relative = relative
+        self.horizontal = horizontal
 
-        self.__regen = regen
-        self.__speed_regen = speed_regen
+        self.regen = regen
+        self.speed_regen = speed_regen
         self.__regen_timer = 0
-        self.__value_regen = value_regen
+        self.value_regen = value_regen
         self.__bar_width = 0
         self.__bar_height = 0
 
-        self.__x, self.__y = get_anchored_position(self.__x, self.__y, self.__width + 2, self.__height + 2, anchor)
+        self.x, self.y = get_anchored_position(self.x, self.y, self.width + 2, self.height + 2, anchor)
 
     def update(self):
         self.__regen_timer += 1
-        if self.__current_value < 0:
-            self.__current_value = 0
-        if self.__current_value < self.__max_value and self.__regen and self.__regen_timer >= self.__speed_regen:
+        if self.value < 0:
+            self.value = 0
+        if self.value < self.max_value and self.regen and self.__regen_timer >= self.speed_regen:
             self.__regen_timer = 0
-            self.__current_value += self.__value_regen
-        while self.__current_value > self.__max_value:
-            self.__current_value -= 1
-        self.__bar_width = self.__width * self.__current_value / self.__max_value
-        self.__bar_height = self.__height * self.__current_value / self.__max_value
+            self.value += self.value_regen
+        while self.value > self.max_value:
+            self.value -= 1
+        self.__bar_width = self.width * self.value / self.max_value
+        self.__bar_height = self.height * self.value / self.max_value
 
     def draw(self, camera_x:int=0, camera_y:int=0):
-        if self.__relative:
-            if self.__horizontal:
-                pyxel.rect(camera_x + self.__x + 1, camera_y + self.__y + 1, self.__bar_width, self.__height, self.__bar_color)
-                pyxel.rectb(camera_x + self.__x, camera_y + self.__y, self.__width + 2, self.__height + 2, self.__border_color)
+        if self.relative:
+            if self.horizontal:
+                rounded_rect(camera_x + self.x, camera_y + self.y, self.__bar_width, self.height, self.corner_radius, self.bar_color) if self.__bar_width > 0 else None
+                rounded_rectb(camera_x + self.x, camera_y + self.y, self.width, self.height, self.corner_radius, self.border_color)
             else:
-                pyxel.rect(camera_x + self.__x + 1, camera_y + self.__y + self.__height - self.__bar_height + 1, self.__width, self.__bar_height, self.__bar_color)
-                pyxel.rectb(camera_x + self.__x, camera_y + self.__y, self.__width + 2, self.__height + 2, self.__border_color)
+                rounded_rect(camera_x + self.x, camera_y + self.y + self.height - self.__bar_height, self.width, self.__bar_height, self.corner_radius, self.bar_color) if self.__bar_width > 0 else None
+                rounded_rectb(camera_x + self.x, camera_y + self.y, self.width, self.height, self.corner_radius, self.border_color)
         else:
-            if self.__horizontal:
-                pyxel.rect(self.__x + 1, self.__y + 1, self.__bar_width, self.__height, self.__bar_color)
-                pyxel.rectb(self.__x, self.__y, self.__width + 2, self.__height + 2, self.__border_color)
+            if self.horizontal:
+                rounded_rect(self.x, self.y, self.__bar_width, self.height, self.corner_radius, self.bar_color) if self.__bar_width > 0 else None
+                rounded_rectb(self.x, self.y, self.width, self.height, self.corner_radius, self.border_color)
             else:
-                pyxel.rect(self.__x + 1, self.__y + self.__height - self.__bar_height + 1, self.__width, self.__bar_height, self.__bar_color)
-                pyxel.rectb(self.__x, self.__y, self.__width + 2, self.__height + 2, self.__border_color)
+                rounded_rect(self.x, self.y + self.height - self.__bar_height, self.width, self.__bar_height, self.corner_radius, self.bar_color) if self.__bar_width > 0 else None
+                rounded_rectb(self.x, self.y, self.width, self.height, self.corner_radius, self.border_color)
 
-class Slider:
-
-    def __init__(self, x:int, y:int, width:int, height:int, corner_radius:int, slider_color:int, button_color:int, button_hover_color:int, min_value:int=0, max_value:int=100, relative:bool=True):
-        self.__x = x
-        self.__y = y
-        self.__width = width
-        self.__height = height
-        self.__corner_radius = corner_radius
-        self.__slider_color = slider_color
-        self.__focused = False
-
-        self.__button_x = x
-        self.__button_y = y
-        self.__button_size = height
-        self.__button_color = button_color
-        self.__button_hover_color = button_hover_color
-
-        self.__min_value = min_value
-        self.__max_value = max_value
-
-        self.__relative = relative
-
-    def get_value(self)-> int|float:
-        return self.__min_value + (self.__button_x - self.__x) / self.__width * (self.__max_value - self.__min_value)
-
-    def is_hovered(self, camera_x:int=0, camera_y:int=0)-> bool:
-        if ((pyxel.mouse_x - self.__button_x)**2 + (pyxel.mouse_y - (self.__button_y + self.__button_size // 2))**2)**0.5 <= self.__button_size and self.__relative:
-            return True
-        elif ((camera_x + pyxel.mouse_x - self.__button_x)**2 + (camera_y + pyxel.mouse_y - (self.__button_y + self.__button_size // 2))**2)**0.5 <= self.__button_size and not self.__relative:
-            return True
-
-    def update(self, camera_x:int=0, camera_y:int=0):
-        if self.is_hovered(camera_x, camera_y) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            self.__focused = True
-
-        if pyxel.btnr(pyxel.MOUSE_BUTTON_LEFT):
-            self.__focused = False
-
-        if self.__focused and self.__relative:
-            self.__button_x = pyxel.mouse_x
-        elif self.__focused and not self.__relative:
-            self.__button_x = camera_x + pyxel.mouse_x
-
-        self.__button_x = clamp(self.__button_x, self.__x, self.__x + self.__width)
-
-    def draw(self, camera_x:int=0, camera_y:int=0):
-        if self.__relative:
-            rounded_rect(self.__x + camera_x, self.__y + camera_y, self.__width, self.__height, self.__corner_radius, self.__slider_color)
-            pyxel.circ(self.__button_x + camera_x, self.__button_y + self.__button_size // 2 + camera_y, self.__button_size, self.__button_hover_color if self.__focused or self.is_hovered(camera_x, camera_y) else self.__button_color)
-        else:
-            rounded_rect(self.__x, self.__y, self.__width, self.__height, self.__corner_radius, self.__slider_color)
-            pyxel.circ(self.__button_x, self.__button_y + self.__button_size // 2, self.__button_size, self.__button_hover_color if self.__focused or self.is_hovered(camera_x, camera_y) else self.__button_color)
-
-class Dialog:
-
-    def __init__(self, lines:list, background_color:int, names_colors:list|int, text_colors:list|int, border:bool=False, border_color:int=0, sound:bool=False, channel:int=0, sound_number:int=0):
-        self.lines = lines
-        self.background_color = background_color
-        self.names_colors = names_colors
-        self.text_colors = text_colors
-        self.border = border
-        self.border_color = border_color
-        self.sound = sound
-        self.channel = channel
-        self.sound_number = sound_number
-
-class DialogManager:
-
-    def __init__(self, relative_start_x:int, relative_start_y:int, relative_end_x:int, relative_end_y:int, width:int, height:int, char_speed:int=3, next_key:int=pyxel.KEY_SPACE):
-        self.__start_x = relative_start_x
-        self.__start_y = relative_start_y
-        self.__end_x = relative_end_x
-        self.__end_y = relative_end_y
-        self.__x = relative_start_x
-        self.__y = relative_start_y
-        self.__width = width
-        self.__height = height
-        self.__background_color = 0
-        self.__names_colors = 0
-        self.__text_colors = []
-        self.__border = False
-        self.__border_color = 0
-        self.__next_key = next_key
-
-        self.__started = False
-        self.__open = False
-        self.__dialog = None
-
-        self.__current_line = 0
-        self.__char_index = 0
-        self.__char_speed = char_speed
-        self.__frame_count = 0
-
-    def is_dialog(self)-> bool:
-        return self.__started
-
-    def start_dialog(self, dialog:Dialog):
-        if not self.__started:
-            self.__background_color = dialog.background_color
-            self.__names_colors = dialog.names_colors
-            self.__text_colors = dialog.text_colors
-            self.__border = dialog.border
-            self.__border_color = dialog.border_color
-
-            self.__started = True
-            self.__dialog = dialog
-            self.__current_line = 0
-            self.__char_index = 0
-            self.__frame_count = 0
-
-    def stop_dialog(self):
-        self.__started = False
-        self.__open = False
-        self.__dialog = None
-
-    def update(self):
-        if self.__started:
-            self.__x = lerp(self.__x, self.__end_x, 0.15)
-            self.__y = lerp(self.__y, self.__end_y, 0.15)
-
-            if abs(self.__x - self.__end_x) < 1 and abs(self.__y - self.__end_y) < 1:
-                self.__open = True
-
-            if self.__open:
-                if self.__char_index < len(self.__dialog.lines[self.__current_line][1]):
-                    if pyxel.btnp(self.__next_key):
-                        self.__char_index = len(self.__dialog.lines[self.__current_line][1])
-                        if self.__dialog.sound:
-                            pyxel.play(self.__dialog.channel, self.__dialog.sound_number)
-                    self.__frame_count += 1
-                    if self.__frame_count % self.__char_speed == 0:
-                        if self.__dialog.sound:
-                            pyxel.play(self.__dialog.channel, self.__dialog.sound_number)
-                        self.__char_index += 1
-                else:
-                    if pyxel.btnp(self.__next_key):
-                        if self.__current_line < len(self.__dialog.lines) - 1:
-                            self.__current_line += 1
-                            self.__char_index = 0
-                            self.__frame_count = 0
-                        else:
-                            self.__started = False
-                            self.__open = False
-
-        else:
-            self.__x = lerp(self.__x, self.__start_x, 0.15)
-            self.__y = lerp(self.__y, self.__start_y, 0.15)
-
-    def draw(self, camera_x:int=0, camera_y:int=0):
-        if abs(self.__x - self.__start_x) < 1 and abs(self.__y - self.__start_y) < 1:
-            return
-
-        pyxel.rect(camera_x + self.__x, camera_y + self.__y, self.__width, self.__height, self.__background_color)
-        if pyxel.frame_count % (30 * 2) < 50:
-            pyxel.text(camera_x + self.__x + self.__width - len(keys_to_representation.get(self.__next_key, "") * 4) - 1, 
-                    camera_y + self.__y + self.__height - 7, 
-                    keys_to_representation.get(self.__next_key, ""), 
-                    self.__text_colors if isinstance(self.__text_colors, int) else self.__text_colors[0])
-        if self.__border:
-            pyxel.rectb(camera_x + self.__x, camera_y + self.__y, self.__width, self.__height, self.__border_color)
-        if self.__open:
-            Text(self.__dialog.lines[self.__current_line][0], camera_x + self.__x + 2, camera_y + self.__y + 2, self.__names_colors, 1).draw()
-        if self.__dialog:
-            visible_text = self.__dialog.lines[self.__current_line][1][:self.__char_index]
-            Text(visible_text, camera_x + self.__x + 2, camera_y + self.__y + 14, self.__text_colors, 1).draw()
-
-def text_size(text:str, font_size:int=1)-> tuple:
+def text_size(text:str, font_size:int=1, font:dict=FONT_DEFAULT)-> tuple:
     lines = text.split("\n")
     if font_size == 0:
-        return (max(len(line) * 4 for line in lines), 6 * len(lines))
-    text_width = max(sum(len(characters_matrices[char][0]) * font_size + 1 for char in line) - 1 for line in lines)
-    text_height = (9 * font_size + 1) * len(lines)
+        return (max(len(line) * 4 for line in lines), 9 * len(lines))
+    text_width = max(sum(len(font[char][0]) * font_size + 1 for char in line) - 1 for line in lines)
+    text_height = (11 * font_size + 1) * len(lines)
 
     return (text_width, text_height)
 
@@ -467,20 +275,31 @@ if __name__ == "__main__":
     pyxel.init(228, 128, title="Gui.py Example", fps=60)
     pyxel.mouse(True)
 
-    t = Text("Gui.py Example", 114, 2, [8,7], 2, ANCHOR_TOP, color_mode=ROTATING_COLOR_MODE, color_speed=20, wavy=True, shadow=True, shadow_color=1, shadow_offset=2)
-    b = Button("Click", 10, 50, 9, 10, 10, 9, 1, True, 10)
-    e = Entry(100, 60, 80, 0, 13, 7, 1)
+    u = UIBar(2, 2, 40, 8, 4, 0, 8, 50, 100)
+    t1 = Text("Hello World!", 114, 10, [8, 9, 10, 11], font_size=2, anchor=ANCHOR_TOP, wavy=True, shadow=True, shadow_color=0, shadow_offset=1, color_mode=ROTATING_COLOR_MODE, color_change_time=30)
+    t2 = Text("This is a longer text to test\nmultiple lines support.", 114, 70, 11, font_size=1, anchor=ANCHOR_CENTER, outline=True, outline_color=0)
+    e = Entry(2, 100, 100, 5, 7, 5, 8, font_size=1, text_cursor_color=7)
+    b = Button("Click Me!", 150, 100, 0, 12, 0, 14, 7, font_size=1, border=True, border_color=0, command=lambda: print("Button Clicked!"))
 
     def update():
-        t.update()
-        b.update()
+        u.update()
+        t1.update()
+        t2.update()
         e.update()
+        b.update()
+
+        if pyxel.btnp(pyxel.KEY_UP):
+            u.value += 10
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            u.value -= 10
 
     def draw():
         pyxel.cls(12)
 
-        t.draw()
-        b.draw()
+        u.draw()
+        t1.draw()
+        t2.draw()
         e.draw()
+        b.draw()
 
     pyxel.run(update, draw)
