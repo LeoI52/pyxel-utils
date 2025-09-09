@@ -1,15 +1,16 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 07/09/2025
+@updated : 09/09/2025
 
 TODO :
 - Checkbox
-- Vertical Slider
+- Slider
+- Dialog System
 - Scrollable Panel
 """
 
-from draw import rounded_rect, rounded_rectb
+from draw import Sprite, rounded_rect, rounded_rectb
 from other import get_anchored_position
 from vars import *
 import random
@@ -41,11 +42,11 @@ class Text:
         self.color_change_time = color_change_time
         self.__last_change_color_time = pyxel.frame_count
 
-        _, text_height = text_size(text, font_size)
+        _, text_height = text_size(text, font_size, font)
         _, self.y = get_anchored_position(0, y, 0, text_height, anchor)
 
     def __draw_line(self, text:str, y:int, camera_x:int=0, camera_y:int=0):
-        text_width, _ = text_size(text, self.font_size)
+        text_width, _ = text_size(text, self.font_size, self.font)
         x, _ = get_anchored_position(self.x, 0, text_width, 0, self.__anchor)
 
         if self.relative:
@@ -53,13 +54,13 @@ class Text:
             y += camera_y
 
         if self.shadow:
-            Text(text, x + self.shadow_offset, y + self.shadow_offset, self.shadow_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x + self.shadow_offset, y + self.shadow_offset, self.shadow_color, self.font_size, self.font, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
 
         if self.outline:
-            Text(text, x - 1, y, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
-            Text(text, x + 1, y, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
-            Text(text, x, y - 1, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
-            Text(text, x, y + 1, self.outline_color, self.font_size, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x - 1, y, self.outline_color, self.font_size, self.font, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x + 1, y, self.outline_color, self.font_size, self.font, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x, y - 1, self.outline_color, self.font_size, self.font, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
+            Text(text, x, y + 1, self.outline_color, self.font_size, self.font, wavy=self.wavy, wave_speed=self.wave_speed, amplitude=self.amplitude).draw()
 
         if self.font_size > 0:
             for char_index, char in enumerate(text):
@@ -151,6 +152,45 @@ class Button:
         if self.border:
             rounded_rectb(x, y, self.__width, self.__height, self.corner_radius, self.border_color)
 
+class IconButton:
+
+    def __init__(self, x:int, y:int, background_color:int, hover_background_color:int, sprite:Sprite, border:bool=False, border_color:int=0, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT, command=None):
+        self.x = x + 1 if not border else x + 2
+        self.y = y + 1 if not border else y + 2
+        self.__width = sprite.w + 2 if not border else sprite.w + 4
+        self.__height = sprite.h + 2 if not border else sprite.h + 4
+        self.background_color = background_color
+        self.hover_background_color = hover_background_color
+        self.sprite = sprite
+        self.border = border
+        self.border_color = border_color
+        self.relative = relative
+        self.command = command
+
+        self.x, self.y = get_anchored_position(self.x, self.y, self.__width, self.__height, anchor)
+
+    def is_hovered(self, camera_x:int=0, camera_y:int=0)-> bool:
+        if self.x - 2 < pyxel.mouse_x < self.x + self.sprite.w + 1 and self.y - 2 < pyxel.mouse_y < self.y + self.sprite.h + 1 and self.relative:
+            return True
+        elif self.x - 2 < camera_x + pyxel.mouse_x < self.x + self.sprite.w + 1 and self.y - 2 < camera_y + pyxel.mouse_y < self.y + self.sprite.h + 1 and not self.relative:
+            return True
+        
+    def update(self, camera_x:int=0, camera_y:int=0):
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) and self.is_hovered(camera_x, camera_y) and self.command:
+            self.command()
+
+    def draw(self, camera_x:int=0, camera_y:int=0):
+        x = camera_x + self.x if self.relative else self.x
+        y = camera_y + self.y if self.relative else self.y
+
+        if self.border:
+            pyxel.rectb(x - 2, y - 2, self.sprite.w + 4, self.sprite.h + 4, self.border_color)
+        if self.is_hovered(camera_x, camera_y):
+            pyxel.rect(x - 1, y - 1, self.sprite.w + 2, self.sprite.h + 2, self.hover_background_color)
+        else:
+            pyxel.rect(x - 1, y - 1, self.sprite.w + 2, self.sprite.h + 2, self.background_color)
+        pyxel.blt(x, y, self.sprite.img, self.sprite.u, self.sprite.v, self.sprite.w, self.sprite.h, self.sprite.colkey)
+
 class Entry:
 
     def __init__(self, x:int, y:int, width:int, corner_radius:int, text_color:int, unfocused_color:int, focused_color:int, font_size:int=1, font:dict=FONT_DEFAULT, text_cursor_color:int=0, relative:bool=True, anchor:int=ANCHOR_TOP_LEFT):
@@ -189,7 +229,7 @@ class Entry:
                 self.focused = False
             elif pyxel.btnp(pyxel.KEY_BACKSPACE):
                 self.text.text = self.text.text[:-1]
-            for k, v in keys_to_chars.items():
+            for k, v in KEYS_TO_CHAR.items():
                 if pyxel.btnp(pyxel.KEY_LSHIFT, hold=1, repeat=1) and pyxel.btnp(k):
                     self.text.text += v.upper()
                 elif pyxel.btnp(k):
@@ -276,7 +316,7 @@ if __name__ == "__main__":
     pyxel.mouse(True)
 
     u = UIBar(2, 2, 40, 8, 4, 0, 8, 50, 100)
-    t1 = Text("Hello World!", 114, 10, [8, 9, 10, 11], font_size=2, anchor=ANCHOR_TOP, wavy=True, shadow=True, shadow_color=0, shadow_offset=1, color_mode=ROTATING_COLOR_MODE, color_change_time=30)
+    t1 = Text("Hello World", 114, 10, [8, 9, 10, 11], font_size=2, font=FONT_DEFAULT, anchor=ANCHOR_TOP, wavy=True, shadow=True, shadow_color=0, shadow_offset=1, color_mode=ROTATING_COLOR_MODE, color_change_time=30)
     t2 = Text("This is a longer text to test\nmultiple lines support.", 114, 70, 11, font_size=1, anchor=ANCHOR_CENTER, outline=True, outline_color=0)
     e = Entry(2, 100, 100, 5, 7, 5, 8, font_size=1, text_cursor_color=7)
     b = Button("Click Me!", 150, 100, 0, 12, 0, 14, 7, font_size=1, border=True, border_color=0, command=lambda: print("Button Clicked!"))
