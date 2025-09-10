@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 09/09/2025
+@updated : 10/09/2025
 
 TODO :
 - Checkbox
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     pyxel.mouse(True)
 
     u = UIBar(2, 2, 40, 8, 4, 0, 8, 50, 100)
-    t1 = Text("Hello World", 114, 10, [8, 9, 10, 11], font_size=2, font=FONT_DEFAULT, anchor=ANCHOR_TOP, wavy=True, shadow=True, shadow_color=0, shadow_offset=1, color_mode=ROTATING_COLOR_MODE, color_change_time=30)
+    t1 = Text("PQR", 114, 10, [8, 9, 10, 11], font_size=2, font=FONT_BOLD, anchor=ANCHOR_TOP, wavy=True, shadow=True, shadow_color=0, shadow_offset=1, color_mode=ROTATING_COLOR_MODE, color_change_time=30)
     t2 = Text("This is a longer text to test\nmultiple lines support.", 114, 70, 11, font_size=1, anchor=ANCHOR_CENTER, outline=True, outline_color=0)
     e = Entry(2, 100, 100, 5, 7, 5, 8, font_size=1, text_cursor_color=7)
     b = Button("Click Me!", 150, 100, 0, 12, 0, 14, 7, font_size=1, border=True, border_color=0, command=lambda: print("Button Clicked!"))
