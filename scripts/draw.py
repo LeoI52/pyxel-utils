@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 07/09/2025
+@updated : 10/09/2025
 """
 
 from other import get_anchored_position
@@ -210,6 +210,17 @@ def draw_moving_spiral(x:int, y:int, radius:int, color:int, time:int, turns:int=
         px = x + math.cos(angle) * r
         py = y + math.sin(angle) * r
         pyxel.pset(int(px), int(py), color)
+
+def draw_reflection(x:int, y:int, width:int, height:int, water_color:int, colkey:int=None, wave_speed:float=0.1, wave_offset:float=0.2, wave_amplitude:int=3):
+    for i in range(-wave_amplitude, width + wave_amplitude):
+        for j in range(height):
+            color = pyxel.pget(x + i, y - height + j)
+            if color == colkey:
+                color = water_color
+
+            off_x = math.cos(pyxel.frame_count * wave_speed + j * wave_offset) * wave_amplitude
+            off_y = math.sin(pyxel.frame_count * wave_speed)
+            pyxel.pset(x + i + off_x, y + height - j + off_y, color)
 
 if __name__ == "__main__":
     spiral_colors = [8, 9, 10, 11, 12, 13, 14, 15]

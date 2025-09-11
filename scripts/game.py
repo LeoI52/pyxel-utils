@@ -246,6 +246,8 @@ class PyxelManager:
         self.__shake_amount = 0
         self.__shake_decay = 0
 
+        self.__flash = {}
+
         self.__fps = fps
         self.__previous_frame_time = time.time()
         self.__current_fps = 0
@@ -299,6 +301,9 @@ class PyxelManager:
         self.__shake_amount = amount
         self.__shake_decay = decay
 
+    def flash(self, lifespan:int, color:int, intensity:float):
+        self.__flash = {"life":lifespan, "color":color, "intensity":intensity}
+
     def change_scene(self, new_scene_id:int, new_camera_x:int=0, new_camera_y:int=0, action=None):
         self.set_camera(new_camera_x, new_camera_y)
 
@@ -342,6 +347,14 @@ class PyxelManager:
         self.__current_scene.draw()
         if self.transition:
             self.transition.draw(self)
+
+        if self.__flash:
+            pyxel.dither(self.__flash["intensity"])
+            pyxel.rect(self.__cam_x, self.__cam_y, pyxel.width, pyxel.height, self.__flash["color"])
+            pyxel.dither(1)
+            self.__flash["life"] -= 1
+            if self.__flash["life"] == 0:
+                self.__flash = {}
 
         if self.debug:
             pyxel.rect(self.__cam_x + 1, self.__cam_y + 1, 66, 27, self.debug_background_color)
@@ -523,6 +536,9 @@ if __name__ == "__main__":
     from tweening import ease_out_quint
 
     def update_1():
+        if pyxel.btnp(pyxel.KEY_F):
+            pm.flash(3, 7, 1)
+
         if pyxel.btnp(pyxel.KEY_B):
             pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):

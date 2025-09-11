@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 07/09/2025
+@updated : 10/09/2025
 
 TODO :
 - Particle max velocity
@@ -143,12 +143,12 @@ class StarParticle(ShapeParticle):
         coords = []
         for i in range(self.points * 2):
             r = r_outer if i % 2 == 0 else r_inner
-            ang = math.radians(self.angle + step/2 * i)
+            ang = math.radians(self.angle + step / 2 * i)
             coords.append((self.x + r * math.cos(ang), self.y + r * math.sin(ang)))
 
         for i in range(len(coords)):
             x1, y1 = coords[i]
-            x2, y2 = coords[(i+1) % len(coords)]
+            x2, y2 = coords[(i + 1) % len(coords)]
             if self.hollow:
                 pyxel.line(x1, y1, x2, y2, self.colors[self.current_color])
             else:
