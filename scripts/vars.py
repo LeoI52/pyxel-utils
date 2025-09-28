@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 10/09/2025
+@updated : 28/09/2025
 
 TODO :
 - Bold Font
@@ -241,3 +241,7 @@ BOTTOM = 0
 TOP = 1
 LEFT = 2
 RIGHT = 3
+TOP_LEFT = 4
+TOP_RIGHT = 5
+BOTTOM_RIGHT = 6
+BOTTOM_LEFT = 7
