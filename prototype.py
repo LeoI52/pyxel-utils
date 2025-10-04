@@ -288,13 +288,33 @@ class RainOverlay:
         for r in self.ripples:
             r.draw()
 
-f = FireOverlay()
+#f = FireOverlay()
+
+def generate_sprite():
+    bg = 0
+    fg = random.randint(1, 15)
+    sprite = [[bg for _ in range(8)] for _ in range(8)]
+
+    # place a few blobs
+    for _ in range(random.randint(3, 6)):
+        cx, cy = random.randint(1, 6), random.randint(1, 6)
+        for y in range(cy - 1, cy + 2):
+            for x in range(cx - 1, cx + 2):
+                if 0 <= x < 8 and 0 <= y < 8:
+                    sprite[y][x] = fg
+    return sprite
+
+sprite = generate_sprite()
 
 def update():
-    f.update()
+    global sprite
+    
+    if pyxel.btnp(pyxel.KEY_SPACE):
+        sprite = generate_sprite()
 
 def draw():
-    pyxel.cls(0)
-    f.draw()
+    for y in range(len(sprite)):
+        for x in range(len(sprite[y])):
+            pyxel.rect(x * 16, y * 16, 16, 16, sprite[y][x])
     
 pyxel.run(update, draw)
