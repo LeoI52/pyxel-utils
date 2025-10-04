@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 28/09/2025
-@updated : 03/10/2025
+@updated : 04/10/2025
 
 TODO
 
@@ -42,10 +42,12 @@ EMPTY_ICON = [
 TILEMAP_ICON = [[1]*16,[1]+[0]*14+[1],[1]+[0]*14+[1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1]+[0]*14+[1],[1]+[0]*14+[1],[1]*16]
 SPRITE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 AUTOTILE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+ANIMATION_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1],[1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 
 SPRITE_EDITOR = 0
 TILEMAP_EDITOR = 1
 AUTOTILE_EDITOR = 2
+ANIMATION_EDITOR = 3
 
 SELECT_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 PEN_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],[1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
@@ -71,9 +73,17 @@ SWAP_TOOL = 9
 
 TOOLS_SHORTCUTS = {
     pyxel.KEY_P:PEN_TOOL,
+    pyxel.KEY_M:MIRROR_TOOL,
+    pyxel.KEY_L:LINE_TOOL,
+    pyxel.KEY_R:FILLED_RECT_TOOL,
+    pyxel.KEY_E:FILLED_ELLI_TOOL,
     pyxel.KEY_B:BUCKET_TOOL,
     pyxel.KEY_O:SWAP_TOOL,
 }
+
+PREVIOUS_ICON = [[1,1,1,1,1,1,1,1],[1,0,0,0,1,0,0,1],[1,0,0,1,0,0,0,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,0,0,1,0,0,0,1],[1,0,0,0,1,0,0,1],[1,1,1,1,1,1,1,1]]
+PLAY_ICON = [[1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1]]
+NEXT_ICON = [[1,1,1,1,1,1,1,1],[1,0,0,1,0,0,0,1],[1,0,0,0,1,0,0,1],[1,0,1,0,0,1,0,1],[1,0,1,0,0,1,0,1],[1,0,0,0,1,0,0,1],[1,0,0,1,0,0,0,1],[1,1,1,1,1,1,1,1]]
 
 #? ---------- UTILITY FUNCTIONS ---------- ?#
 
@@ -106,7 +116,7 @@ class IconButton:
 
     def __init__(self, x:int, y:int, id:int, icon:list, colors_len:int):
         self.x, self.y = x, y
-        self.w, self.h = 16, 16
+        self.w, self.h = len(icon[0]), len(icon)
         self.id = id
         self.icon = icon
         self.colors_len = colors_len
@@ -198,6 +208,86 @@ class Selector:
         pyxel.rect(plus_x, self.y, self.btn_w, self.btn_h, self.colors_len + 2)
         pyxel.text(plus_x + 2, self.y + 2, "+", self.colors_len + 1)
 
+class Entry:
+
+    def __init__(self, x:int, y:int, label:str, colors_len:int, max_length:int=10, default_value:str=""):
+        self.x, self.y = x, y
+        self.label = label
+        self.colors_len = colors_len
+        self.max_length = max_length
+        self.text = default_value
+        self.active = False
+        self.cursor_visible = True
+        self.cursor_timer = 0
+        
+        self.entry_w = max_length * 4 + 4
+        self.entry_h = 8
+
+    @property
+    def value(self):
+        return self.text
+    
+    @value.setter
+    def value(self, new_value:str):
+        self.text = new_value[:self.max_length]
+
+    def update(self):
+        mx, my = pyxel.mouse_x, pyxel.mouse_y
+        label_w = len(self.label) * 4
+        entry_x = self.x + label_w
+        
+        if (entry_x <= mx < entry_x + self.entry_w and 
+            self.y <= my < self.y + self.entry_h and 
+            pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
+            self.active = True
+        elif pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or pyxel.btnp(pyxel.KEY_RETURN):
+            self.active = False
+        
+        if self.active:
+            if pyxel.btnp(pyxel.KEY_BACKSPACE) and len(self.text) > 0:
+                self.text = self.text[:-1]
+            
+            for key in range(pyxel.KEY_A, pyxel.KEY_Z + 1):
+                if pyxel.btnp(key):
+                    char = chr(ord('a') + (key - pyxel.KEY_A))
+                    if pyxel.btn(pyxel.KEY_SHIFT):
+                        char = char.upper()
+                    if len(self.text) < self.max_length:
+                        self.text += char
+            
+            for key in range(pyxel.KEY_0, pyxel.KEY_9 + 1):
+                if pyxel.btnp(key):
+                    if len(self.text) < self.max_length:
+                        self.text += chr(ord('0') + (key - pyxel.KEY_0))
+
+            if pyxel.btnp(pyxel.KEY_COMMA) and len(self.text) < self.max_length:
+                self.text += ","
+            
+            if pyxel.btnp(pyxel.KEY_SPACE) and len(self.text) < self.max_length:
+                self.text += " "
+        
+        self.cursor_timer += 1
+        if self.cursor_timer >= 30:
+            self.cursor_visible = not self.cursor_visible
+            self.cursor_timer = 0
+
+    def draw(self):
+        label_w = len(self.label) * 4
+        entry_x = self.x + label_w
+        
+        pyxel.text(self.x, self.y + 2, self.label, self.colors_len + 1)
+        
+        box_color = self.colors_len + 2 if not self.active else self.colors_len + 1
+        pyxel.rect(entry_x, self.y, self.entry_w, self.entry_h, self.colors_len)
+        pyxel.rectb(entry_x, self.y, self.entry_w, self.entry_h, box_color)
+        
+        if self.text:
+            pyxel.text(entry_x + 2, self.y + 2, self.text, self.colors_len + 1)
+        
+        if self.active and self.cursor_visible:
+            cursor_x = entry_x + 2 + len(self.text) * 4
+            pyxel.line(cursor_x, self.y + 1, cursor_x, self.y + 6, self.colors_len + 1)
+
 #? ---------- EDITOR ---------- ?#
 
 class Editor:
@@ -223,7 +313,8 @@ class Editor:
         self.current_editor = SPRITE_EDITOR
         self.editor_buttons = [IconButton(5, 16, SPRITE_EDITOR, SPRITE_ICON, self.COLORS_LEN),
                                IconButton(5, 32, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),
-                               IconButton(5, 48, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN)]
+                               IconButton(5, 48, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN),
+                               IconButton(5, 64, ANIMATION_EDITOR, ANIMATION_ICON, self.COLORS_LEN)]
         self.current_tool = SELECT_TOOL
         self.tool_buttons = [IconButton(169, 16, SELECT_TOOL, SELECT_ICON, self.COLORS_LEN),
                              IconButton(185, 16, PEN_TOOL, PEN_ICON, self.COLORS_LEN),
@@ -281,9 +372,24 @@ class Editor:
         self.a_buttons_2 = self.place_a_buttons()
         self.a_image_selector = Selector(25, 2, "Image:", [0, 1, 2], self.COLORS_LEN)
 
+        #? Animation Editor Variables
+        self.n_frame = 0
+        self.n_frame_timer = 0
+        self.n_is_playing = False
+        self.n_play_button = IconButton(135, 148, 1, PLAY_ICON, self.COLORS_LEN)
+        self.n_next_button = IconButton(145, 148, 2, NEXT_ICON, self.COLORS_LEN)
+        self.n_colkey_entry = Entry(169, 64, "Colkey:", self.COLORS_LEN, 2, "0")
+        self.n_start_uv_entry = Entry(169, 32, "Start (u,v):", self.COLORS_LEN, 7)
+        self.n_prev_button = IconButton(125, 148, 0, PREVIOUS_ICON, self.COLORS_LEN)
+        self.n_sprite_wh_entry = Entry(169, 48, "Sprite (w,h):", self.COLORS_LEN, 5)
+        self.n_frames_entry = Entry(169, 80, "Total frames:", self.COLORS_LEN, 2, "1")
+        self.n_image_selector = Selector(169, 16, "Image:", [0, 1, 2], self.COLORS_LEN)
+        self.n_speed_entry = Entry(169, 96, "Frame duration:", self.COLORS_LEN, 4, "10")
 
         #? Pyxel Run
         pyxel.run(self.update, self.draw)
+
+    #? ---------- DRAW METHODS ---------- ?#
 
     def rect(self, min_x:int, min_y:int, max_x:int, max_y:int, filled:bool=True):
         rect = set()
@@ -351,6 +457,8 @@ class Editor:
                 y0 += sy
 
         return line
+
+    #? ---------- AUTOTILE METHODS ---------- ?#
 
     def get_neighbors(self, tilemap_id:int, tile_y:int, x:int, y:int):
         n = 0
@@ -1018,6 +1126,8 @@ class Editor:
                 self.cut_tilemap()
             elif pyxel.btnp(pyxel.KEY_V):
                 self.paste_tilemap()
+            elif pyxel.btnp(pyxel.KEY_T):
+                self.place_tiles()
 
         if pyxel.btnp(pyxel.KEY_R):
             self.rotate_tilemap_selection()
@@ -1031,9 +1141,6 @@ class Editor:
         for key in TOOLS_SHORTCUTS.keys():
             if pyxel.btnp(key):
                 self.current_tool = TOOLS_SHORTCUTS[key]
-
-        if pyxel.btnp(pyxel.KEY_T):
-            self.place_tiles()
 
         #? Editor
         if collision_point_rect(pyxel.mouse_x, pyxel.mouse_y, EDITOR_X, EDITOR_Y, EDITOR_SIZE, EDITOR_SIZE):
@@ -1132,7 +1239,7 @@ class Editor:
         self.t_image_selector.update()
         if self.t_image != self.t_image_selector.value:
             self.t_image = self.t_image_selector.value
-            pyxel.tilemaps[self.t_tilemap].imgsrc = pyxel.images[self.t_image]
+            pyxel.tilemaps[self.t_tilemap].imgsrc = self.t_image
         self.t_layer_selector.update()
         self.t_layer = self.t_layer_selector.value
         self.t_grid_selector.update()
@@ -1284,6 +1391,102 @@ class Editor:
             if x == 0:
                 y += 36
 
+    #? ---------- ANIMATION EDITOR ---------- ?#
+
+    def update_animation_editor(self):
+        #? Entries
+        self.n_start_uv_entry.update()
+        self.n_sprite_wh_entry.update()
+        self.n_colkey_entry.update()
+        self.n_frames_entry.update()
+        self.n_speed_entry.update()
+
+        #? Selectors
+        self.n_image_selector.update()
+
+        #? Buttons
+        if self.n_play_button.update(5) is not None:
+            self.n_is_playing = not self.n_is_playing
+        
+        if self.n_prev_button.update(5) is not None:
+            if self.n_frame > 0:
+                self.n_frame -= 1
+                self.n_is_playing = False
+        
+        if self.n_next_button.update(5) is not None:
+            try:
+                total_frames = int(self.n_frames_entry.value)
+                if self.n_frame < total_frames - 1:
+                    self.n_frame += 1
+                    self.n_is_playing = False
+            except:
+                pass
+
+        #? Retrieving
+        u = v = w = h = c = t = s = None
+
+        try:
+            u, v = map(int, self.n_start_uv_entry.value.split(","))
+            w, h = map(int, self.n_sprite_wh_entry.value.split(","))
+            c = int(self.n_colkey_entry.value)
+            t = int(self.n_frames_entry.value)
+            s = int(self.n_speed_entry.value)
+            
+            if self.n_is_playing and t > 0:
+                self.n_frame_timer += 1
+                if self.n_frame_timer >= s:
+                    self.n_frame_timer = 0
+                    self.n_frame = (self.n_frame + 1) % t
+            
+        except:
+            pass
+
+        self.n_animation = (u, v, w, h, c, t, s)
+
+    def draw_animation_editor(self):
+        pyxel.cls(self.COLORS_LEN)
+
+        #? Entries
+        self.n_start_uv_entry.draw()
+        self.n_sprite_wh_entry.draw()
+        self.n_colkey_entry.draw()
+        self.n_frames_entry.draw()
+        self.n_speed_entry.draw()
+
+        #? Selectors
+        self.n_image_selector.draw()
+
+        #? Buttons
+        self.n_prev_button.draw()
+        self.n_play_button.draw()
+        self.n_next_button.draw()
+
+        #? Draw current frame
+        u, v, w, h, c, t, s = self.n_animation
+        if all(x is not None for x in [u, v, w, h, t, s]) and t > 0:
+            frame_u = u + (self.n_frame * w)
+            
+            scale_x = EDITOR_SIZE / w
+            scale_y = EDITOR_SIZE / h
+            scale = min(scale_x, scale_y)
+            
+            scaled_w = int(w * scale)
+            scaled_h = int(h * scale)
+            
+            center_x = EDITOR_X + (EDITOR_SIZE - scaled_w) // 2
+            center_y = EDITOR_Y + (EDITOR_SIZE - scaled_h) // 2
+            
+            for py in range(h):
+                for px in range(w):
+                    pixel_color = pyxel.images[self.n_image_selector.value].pget(frame_u + px, v + py)
+                    if pixel_color != c:
+                        draw_x = center_x + int(px * scale)
+                        draw_y = center_y + int(py * scale)
+                        pyxel.rect(draw_x, draw_y, int(scale), int(scale), pixel_color)
+            
+            frame_text = f"Frame: {self.n_frame + 1}/{t}"
+            pyxel.text(EDITOR_X + 2, 148, frame_text, self.COLORS_LEN + 1)
+
     #? ---------- MAIN ---------- ?#
     
     def update(self):
@@ -1297,15 +1500,17 @@ class Editor:
         if self.current_editor == SPRITE_EDITOR:       self.update_sprite_editor()
         elif self.current_editor == TILEMAP_EDITOR:    self.update_tilemap_editor()
         elif self.current_editor == AUTOTILE_EDITOR:   self.update_autotile_editor()
+        elif self.current_editor == ANIMATION_EDITOR:  self.update_animation_editor()
 
     def draw(self):
         if self.current_editor == SPRITE_EDITOR:       self.draw_sprite_editor()
         elif self.current_editor == TILEMAP_EDITOR:    self.draw_tilemap_editor()
         elif self.current_editor == AUTOTILE_EDITOR:   self.draw_autotile_editor()
+        elif self.current_editor == ANIMATION_EDITOR:  self.draw_animation_editor()
 
         for editor_button in self.editor_buttons:
             editor_button.draw()
 
 if __name__ == "__main__":
     EXTENDED_PICO8_COLORS = [0x000000, 0x1D2B53, 0x7E2553, 0x008751, 0xAB5236, 0x5F574F, 0xC2C3C7, 0xFFF1E8, 0xFF004D, 0xFFA300, 0xFFEC27, 0x00E436, 0x29ADFF, 0x83769C, 0xFF77A8, 0xFFCCAA, 0x1A1C2C, 0x5D275D, 0x008080, 0x1B6535, 0x73464D, 0x9D9D9D, 0xFFFFFF, 0xFF6C24, 0xFFD93F, 0xB2D732, 0x3CA370, 0x0066CC, 0x45283C, 0xA288AE, 0xF3B4B4, 0xD4A373]
-    Editor("Test.pyxres", EXTENDED_PICO8_COLORS)
+    Editor("assets_rooms.pyxres", EXTENDED_PICO8_COLORS)
