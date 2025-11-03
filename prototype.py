@@ -175,41 +175,6 @@ def lerp(a, b, t):
 #             visible_text = self.__dialog.lines[self.__current_line][1][:self.__char_index]
 #             Text(visible_text, camera_x + self.__x + 2, camera_y + self.__y + 14, self.__text_colors, 1).draw()
 
-class FireOverlay:
-
-    def __init__(self, width:int=128, height:int=36, spread:float=0.5, palette:list=[0,8,8,8,9,9,9,9,10,10,7], colkey:int=0):
-        self.width = round(width / 4)
-        self.spread = spread
-        self.height = height
-        self.pixels = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        self.palette = palette
-        self.maxint = len(palette) - 1
-        self.colkey = colkey
-
-        for x in range(self.width):
-            self.pixels[self.height - 1][x] = self.maxint
-
-    def update(self):
-        for y in range(1, self.height):
-            for x in range(self.width):
-                newint = self.pixels[y][x] - math.floor(random.random() + self.spread)
-                if newint < 1:
-                    newint = 0
-                self.pixels[y - 1][x] = newint
-
-    def draw(self):
-        w, h, off = self.width, self.height, 128 - self.height
-
-        for y in range(h):
-            for x in range(w):
-                intensity = self.pixels[y][x]
-                col = self.palette[intensity] if intensity < len(self.palette) else self.colkey
-                if col != self.colkey:
-                    pyxel.pset(x, y + off, col)
-                    pyxel.pset(x + w, y + off, col)
-                    pyxel.pset(x + w * 2, y + off, col)
-                    pyxel.pset(x + w * 3, y + off, col)
-
 class Drop:
 
     def __init__(self, x, y, length, target, sp_x=2, sp_y=4):
@@ -288,33 +253,10 @@ class RainOverlay:
         for r in self.ripples:
             r.draw()
 
-#f = FireOverlay()
-
-def generate_sprite():
-    bg = 0
-    fg = random.randint(1, 15)
-    sprite = [[bg for _ in range(8)] for _ in range(8)]
-
-    # place a few blobs
-    for _ in range(random.randint(3, 6)):
-        cx, cy = random.randint(1, 6), random.randint(1, 6)
-        for y in range(cy - 1, cy + 2):
-            for x in range(cx - 1, cx + 2):
-                if 0 <= x < 8 and 0 <= y < 8:
-                    sprite[y][x] = fg
-    return sprite
-
-sprite = generate_sprite()
-
 def update():
-    global sprite
-    
-    if pyxel.btnp(pyxel.KEY_SPACE):
-        sprite = generate_sprite()
+    pass
 
 def draw():
-    for y in range(len(sprite)):
-        for x in range(len(sprite[y])):
-            pyxel.rect(x * 16, y * 16, 16, 16, sprite[y][x])
+    pyxel.cls(0)
     
 pyxel.run(update, draw)

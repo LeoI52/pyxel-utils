@@ -1,22 +1,27 @@
 """
 @author : Léo Imbert
 @created : 28/09/2025
-@updated : 04/10/2025
+@updated : 02/11/2025
 
 TODO
 
 - Square if shift pressed
 - Circle if shift pressed
-- Outside Editor Check Redo
+- Palette Editor
 
 """
 
 #? ---------- IMPORTATIONS ---------- ?#
 
 import pyxel
+import json
 import os
 
 #? ---------- CONSTANTS ---------- ?#
+
+DEFAULT_PYXEL_COLORS = [0x000000, 0x2B335F, 0x7E2072, 0x19959C, 0x8B4852, 0x395C98, 0xA9C1FF, 0xEEEEEE, 0xD4186C, 0xD38441, 0xE9C35B, 0x70C6A9, 0x7696DE, 0xA3A3A3, 0xFF9798, 0xEDC7B0]
+
+MOUSE = [[2,2,2,2,2,2,0,0],[2,1,1,1,1,2,0,0],[2,1,1,1,2,0,0,0],[2,1,1,1,1,2,0,0],[2,1,2,1,1,1,2,0],[2,2,0,2,1,1,1,2],[0,0,0,0,2,1,2,0],[0,0,0,0,0,2,0,0]]
 
 EDITOR_X, EDITOR_Y, EDITOR_SIZE = 25, 16, 128
 TILEMAP_TILE_SIZE = 8
@@ -48,6 +53,7 @@ SPRITE_EDITOR = 0
 TILEMAP_EDITOR = 1
 AUTOTILE_EDITOR = 2
 ANIMATION_EDITOR = 3
+SOUND_EDITOR = 4
 
 SELECT_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 PEN_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],[1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
@@ -75,7 +81,7 @@ TOOLS_SHORTCUTS = {
     pyxel.KEY_P:PEN_TOOL,
     pyxel.KEY_M:MIRROR_TOOL,
     pyxel.KEY_L:LINE_TOOL,
-    pyxel.KEY_R:FILLED_RECT_TOOL,
+    pyxel.KEY_U:FILLED_RECT_TOOL,
     pyxel.KEY_E:FILLED_ELLI_TOOL,
     pyxel.KEY_B:BUCKET_TOOL,
     pyxel.KEY_O:SWAP_TOOL,
@@ -89,6 +95,33 @@ NEXT_ICON = [[1,1,1,1,1,1,1,1],[1,0,0,1,0,0,0,1],[1,0,0,0,1,0,0,1],[1,0,1,0,0,1,
 
 def collision_point_rect(x1:int, y1:int, x2:int, y2:int, w2:int, h2:int)-> bool:
     return x2 <= x1 < x2 + w2 and y2 <= y1 < y2 + h2
+
+def edit_pyxres(pyxres_path:str, number_images:int=3, image_width:int=256, image_height:int=256, number_tilemaps:int=8, tilemap_width:int=256, tilemap_height:int=256):
+    pyxel.init(64, 64)
+
+    if os.path.isfile(pyxres_path):
+        pyxel.load(pyxres_path)
+
+        images = pyxel.images.to_list()
+        if len(images) > number_images:
+            pyxel.images.from_list(images[:number_images])
+        elif len(images) < number_images:
+            w, h = pyxel.images[0].width, pyxel.images[0].height
+            pyxel.images.from_list(images + [pyxel.Image(w, h) for _ in range(number_images - len(images))])
+
+        tilemaps = pyxel.tilemaps.to_list()
+        if len(tilemaps) > number_tilemaps:
+            pyxel.tilemaps.from_list(tilemaps[:number_tilemaps])
+        elif len(tilemaps) < number_tilemaps:
+            w, h = pyxel.tilemaps[0].width, pyxel.tilemaps[0].height
+            pyxel.tilemaps.from_list(tilemaps + [pyxel.Tilemap(w, h, 0) for _ in range(number_tilemaps - len(tilemaps))])
+
+    else:
+        pyxel.images.from_list([pyxel.Image(image_width, image_height) for _ in range(number_images)])
+        pyxel.tilemaps.from_list([pyxel.Tilemap(tilemap_width, tilemap_height, 0) for _ in range(number_tilemaps)])
+
+    pyxel.save(pyxres_path)
+    pyxel.quit()
 
 #? ---------- UTILITY CLASSES ---------- ?#
 
@@ -292,29 +325,39 @@ class Entry:
 
 class Editor:
 
-    def __init__(self, pyxres_path:str, color_palette:list, fullscreen:bool=True):
+    def __init__(self, pyxres_path:str, color_palette:list=DEFAULT_PYXEL_COLORS, fullscreen:bool=True):
         #? ASSERTS
         assert len(color_palette) <= 32, "The color palette cannot be longer than 32 colors"
 
         #? Pyxel Init
-        pyxel.init(258, 160, title="Editor", fps=60)
-        pyxel.mouse(True)
+        pyxel.init(258, 160, title="Editor", fps=60, quit_key=pyxel.KEY_NONE)
         pyxel.fullscreen(fullscreen)
         if os.path.isfile(pyxres_path):
             pyxel.load(pyxres_path)
+            number_images = len(pyxel.images.to_list())
+            number_tilemaps = len(pyxel.tilemaps.to_list())
         pyxel.colors.from_list(color_palette + [0x2B335F, 0xEEEEEE, 0x29ADFF])
 
         #? CONSTANTS
         self.PYXRES_PATH = pyxres_path
+        self.JSON_PATH = pyxres_path[:-7] + ".json"
         self.COLORS_LEN = len(color_palette)
         self.ZOOMS = [8, 16, 32, 64, 128]
+
+        #? Data
+        if os.path.isfile(self.JSON_PATH):
+            with open(self.JSON_PATH, "r") as file:
+                self.data = json.load(file)
+        else:
+            self.data = {"a_buttons":[]}
 
         #? Main Variables
         self.current_editor = SPRITE_EDITOR
         self.editor_buttons = [IconButton(5, 16, SPRITE_EDITOR, SPRITE_ICON, self.COLORS_LEN),
                                IconButton(5, 32, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),
                                IconButton(5, 48, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN),
-                               IconButton(5, 64, ANIMATION_EDITOR, ANIMATION_ICON, self.COLORS_LEN)]
+                               IconButton(5, 64, ANIMATION_EDITOR, ANIMATION_ICON, self.COLORS_LEN),
+                               IconButton(5, 80, SOUND_EDITOR, EMPTY_ICON, self.COLORS_LEN)]
         self.current_tool = SELECT_TOOL
         self.tool_buttons = [IconButton(169, 16, SELECT_TOOL, SELECT_ICON, self.COLORS_LEN),
                              IconButton(185, 16, PEN_TOOL, PEN_ICON, self.COLORS_LEN),
@@ -332,7 +375,7 @@ class Editor:
         self.s_zoom = 16
         self.s_color = 0
         self.s_history = []
-        self.s_grid = False
+        self.s_grid = True
         self.s_grid_size = 8
         self.s_clipboard = None
         self.s_selection = None
@@ -340,13 +383,13 @@ class Editor:
         self.s_offset_x = self.s_offset_y = 0
         self.s_tile_size = EDITOR_SIZE // self.s_zoom
         self.s_color_buttons = self.place_s_color_buttons(color_palette)
-        self.s_image_selector = Selector(25, 148, "Image:", [0, 1, 2], self.COLORS_LEN)
+        self.s_image_selector = Selector(25, 148, "Image:", [x for x in range(number_images)], self.COLORS_LEN)
         self.s_zoom_selector = Selector(101, 148, "Zoom:", self.ZOOMS[::-1], self.COLORS_LEN, 3)
         self.s_grid_selector = Selector(169, 148, "Grid size:", [1, 2, 4, 8], self.COLORS_LEN, 3)
 
         #? Tilemap Editor Variables
         self.t_tilemap = 0
-        self.t_grid = False
+        self.t_grid = True
         self.t_history = []
         self.t_layer = "None"
         self.t_grid_size = 8
@@ -358,19 +401,16 @@ class Editor:
         self.t_image = pyxel.tilemaps[self.t_tilemap].imgsrc
         self.t_tilemap_offset_x = self.t_tilemap_offset_y = 0
         self.t_grid_selector = Selector(169, 4, "Grid size:", [1, 2, 4, 8], self.COLORS_LEN, 3)
-        self.t_tilemap_selector = Selector(25, 148, "Tilemap:", list(range(8)), self.COLORS_LEN)
-        self.t_image_selector = Selector(169, 148, "Image:", [0, 1, 2], self.COLORS_LEN, self.t_image)
-        self.t_layer_selector = Selector(93, 148, "Layer:", ["None"] + list(range(8)), self.COLORS_LEN)
+        self.t_tilemap_selector = Selector(25, 148, "Tilemap:", [x for x in range(number_tilemaps)], self.COLORS_LEN)
+        self.t_image_selector = Selector(169, 148, "Image:", [x for x in range(number_images)], self.COLORS_LEN, self.t_image)
+        self.t_layer_selector = Selector(93, 148, "Layer:", ["None"] + [x for x in range(number_tilemaps)], self.COLORS_LEN)
 
         #? Autotile Editor Variables
         self.a_image = 0
-        self.a_tiles_y_0 = []
-        self.a_tiles_y_1 = []
-        self.a_tiles_y_2 = []
-        self.a_buttons_0 = self.place_a_buttons()
-        self.a_buttons_1 = self.place_a_buttons()
-        self.a_buttons_2 = self.place_a_buttons()
-        self.a_image_selector = Selector(25, 2, "Image:", [0, 1, 2], self.COLORS_LEN)
+        self.a_tiles_y = {x:[] for x in range(len(pyxel.images.to_list()))}
+        self.a_buttons = {x:self.place_a_buttons() for x in range(len(pyxel.images.to_list()))}
+        self.a_image_selector = Selector(25, 2, "Image:", [x for x in range(number_images)], self.COLORS_LEN)
+        self.select_a_buttons(self.data["a_buttons"])
 
         #? Animation Editor Variables
         self.n_frame = 0
@@ -383,11 +423,25 @@ class Editor:
         self.n_prev_button = IconButton(125, 148, 0, PREVIOUS_ICON, self.COLORS_LEN)
         self.n_sprite_wh_entry = Entry(169, 48, "Sprite (w,h):", self.COLORS_LEN, 5)
         self.n_frames_entry = Entry(169, 80, "Total frames:", self.COLORS_LEN, 2, "1")
-        self.n_image_selector = Selector(169, 16, "Image:", [0, 1, 2], self.COLORS_LEN)
+        self.n_image_selector = Selector(169, 16, "Image:", [x for x in range(number_images)], self.COLORS_LEN)
         self.n_speed_entry = Entry(169, 96, "Frame duration:", self.COLORS_LEN, 4, "10")
+
+        #? Sound Editor Variables
 
         #? Pyxel Run
         pyxel.run(self.update, self.draw)
+
+    def save(self):
+        pyxel.save(self.PYXRES_PATH)
+
+        self.data = {"a_buttons":[]}
+        for image, buttons in self.a_buttons.items():
+            for i in range(len(buttons)):
+                if self.a_buttons[image][i].selected:
+                    self.data["a_buttons"].append((image, i))
+
+        with open(self.JSON_PATH, "w") as file:
+            json.dump(self.data, file, indent=4)
 
     #? ---------- DRAW METHODS ---------- ?#
 
@@ -460,44 +514,45 @@ class Editor:
 
     #? ---------- AUTOTILE METHODS ---------- ?#
 
-    def get_neighbors(self, tilemap_id:int, tile_y:int, x:int, y:int):
+    def get_neighbors(self, tilemap_id:int, tiles_y:list, x:int, y:int):
         n = 0
-        if y > 0 and pyxel.tilemaps[tilemap_id].pget(x, y - 1)[1] == tile_y:
+        if y > 0 and pyxel.tilemaps[tilemap_id].pget(x, y - 1)[1] in tiles_y:
             n += 1
-        if x < 255 and pyxel.tilemaps[tilemap_id].pget(x + 1, y)[1] == tile_y:
+        if x < pyxel.tilemaps[self.t_tilemap].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y)[1] in tiles_y:
             n += 2
-        if y < 255 and pyxel.tilemaps[tilemap_id].pget(x, y + 1)[1] == tile_y:
+        if y < pyxel.tilemaps[self.t_tilemap].height and pyxel.tilemaps[tilemap_id].pget(x, y + 1)[1] in tiles_y:
             n += 4
-        if x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y)[1] == tile_y:
+        if x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y)[1] in tiles_y:
             n += 8
 
         if n == 15:
-            if y > 0 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y - 1)[1] == tile_y:
+            if y > 0 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y - 1)[1] in tiles_y:
                 n += 1
-            if y > 0 and x < 255 and pyxel.tilemaps[tilemap_id].pget(x + 1, y - 1)[1] == tile_y:
+            if y > 0 and x < pyxel.tilemaps[self.t_tilemap].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y - 1)[1] in tiles_y:
                 n += 2
-            if y < 255 and x < 255 and pyxel.tilemaps[tilemap_id].pget(x + 1, y + 1)[1] == tile_y:
+            if y < pyxel.tilemaps[self.t_tilemap].height and x < pyxel.tilemaps[self.t_tilemap].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y + 1)[1] in tiles_y:
                 n += 4
-            if y < 255 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y + 1)[1] == tile_y:
+            if y < pyxel.tilemaps[self.t_tilemap].height and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y + 1)[1] in tiles_y:
                 n += 8
 
         return n
     
     def place_tiles(self):
-        new_tiles = [[(0, 0) for _ in range(255)] for _ in range(255)]
+        new_tiles = [[(0, 0) for _ in range(pyxel.tilemaps[self.t_tilemap].width)] for _ in range(pyxel.tilemaps[self.t_tilemap].height)]
 
-        for y in range(255):
-            for x in range(255):
+        for y in range(pyxel.tilemaps[self.t_tilemap].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap].width):
                 tile_x, tile_y  = pyxel.tilemaps[self.t_tilemap].pget(x, y)
+                tiles_y = self.a_tiles_y[self.t_image]
 
-                if tile_y in eval(f"self.a_tiles_y_{self.t_image}"):
-                    neighbors = self.get_neighbors(self.t_tilemap, tile_y, x, y)
+                if tile_y in tiles_y:
+                    neighbors = self.get_neighbors(self.t_tilemap, tiles_y, x, y)
                     new_tiles[y][x] = (neighbors, tile_y)
                 else:
                     new_tiles[y][x] = (tile_x, tile_y)
 
-        for y in range(255):
-            for x in range(255):
+        for y in range(pyxel.tilemaps[self.t_tilemap].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap].width):
                 pyxel.tilemaps[self.t_tilemap].pset(x, y, new_tiles[y][x])
 
     #? ---------- SPRITE EDITOR ---------- ?#
@@ -514,7 +569,7 @@ class Editor:
         return l
 
     def push_sprite_history(self):
-        snapshot = [[pyxel.images[self.s_image].pget(x, y) for x in range(256)] for y in range(256)]
+        snapshot = [[pyxel.images[self.s_image].pget(x, y) for x in range(pyxel.images[self.s_image].width)] for y in range(pyxel.images[self.s_image].height)]
         self.s_history.append((self.s_image, snapshot))
         if len(self.s_history) > 40:
             self.s_history.pop(0)
@@ -522,8 +577,8 @@ class Editor:
     def undo_sprite(self):
         if self.s_history:
             image, snapshot = self.s_history.pop()
-            for y in range(256):
-                for x in range(256):
+            for y in range(pyxel.images[self.s_image].height):
+                for x in range(pyxel.images[self.s_image].width):
                     pyxel.images[image].pset(x, y, snapshot[y][x])
 
     def flood_fill_sprite(self, x:int, y:int, old_color:int, new_color:int):
@@ -618,7 +673,7 @@ class Editor:
             abs_x = min_x + rel_x + self.s_offset_x
             abs_y = min_y + rel_y + self.s_offset_y
             
-            if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+            if 0 <= abs_x < pyxel.images[self.s_image].width and 0 <= abs_y < pyxel.images[self.s_image].height:
                 pyxel.images[self.s_image].pset(abs_x, abs_y, color)
 
     def rotate_sprite_selection(self):
@@ -654,7 +709,7 @@ class Editor:
                 if new_x <= max_x and new_y <= max_y:
                     abs_x = new_x + self.s_offset_x
                     abs_y = new_y + self.s_offset_y
-                    if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                    if 0 <= abs_x < pyxel.images[self.s_image].width and 0 <= abs_y < pyxel.images[self.s_image].height:
                         pyxel.images[self.s_image].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def flip_sprite_selection_horizontal(self):
@@ -683,7 +738,7 @@ class Editor:
                 new_x = min_x + (width - 1 - x)
                 abs_x = new_x + self.s_offset_x
                 abs_y = (min_y + y) + self.s_offset_y
-                if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                if 0 <= abs_x < pyxel.images[self.s_image].width and 0 <= abs_y < pyxel.images[self.s_image].height:
                     pyxel.images[self.s_image].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def flip_sprite_selection_vertical(self):
@@ -712,7 +767,7 @@ class Editor:
                 new_y = min_y + (height - 1 - y)
                 abs_x = (min_x + x) + self.s_offset_x
                 abs_y = new_y + self.s_offset_y
-                if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                if 0 <= abs_x < pyxel.images[self.s_image].width and 0 <= abs_y < pyxel.images[self.s_image].height:
                     pyxel.images[self.s_image].pset(abs_x, abs_y, temp_buffer[y][x])
    
     def update_sprite_editor(self):
@@ -734,7 +789,18 @@ class Editor:
         if pyxel.btnp(pyxel.KEY_V) and not (pyxel.btn(pyxel.KEY_CTRL) or pyxel.btn(pyxel.KEY_GUI)):
             self.flip_sprite_selection_vertical()
 
-        self.s_color = (self.s_color + pyxel.mouse_wheel * -1) % self.COLORS_LEN
+        if pyxel.mouse_wheel < 0:
+            i = min(self.ZOOMS.index(self.s_zoom) + 1, len(self.ZOOMS) - 1)
+            self.s_selection = None
+            self.s_zoom = self.ZOOMS[i]
+            self.s_zoom_selector.value = self.s_zoom
+            self.s_tile_size = EDITOR_SIZE // self.s_zoom
+        elif pyxel.mouse_wheel > 0:
+            i = max(self.ZOOMS.index(self.s_zoom) - 1, 0)
+            self.s_selection = None
+            self.s_zoom = self.ZOOMS[i]
+            self.s_zoom_selector.value = self.s_zoom
+            self.s_tile_size = EDITOR_SIZE // self.s_zoom
 
         if pyxel.btnp(pyxel.KEY_G): self.s_grid = not self.s_grid
 
@@ -768,7 +834,7 @@ class Editor:
                     pyxel.images[self.s_image].pset(mx, my, self.s_color)
                     axis_x = self.s_offset_x + self.s_zoom // 2
                     mx_mirror = axis_x - (mx - axis_x) - 1
-                    if 0 <= mx_mirror < 256:
+                    if 0 <= mx_mirror < pyxel.images[self.s_image].width:
                         pyxel.images[self.s_image].pset(mx_mirror, my, self.s_color)
                 elif self.current_tool == SELECT_TOOL:
                     x = (pyxel.mouse_x - EDITOR_X) // self.s_tile_size
@@ -797,7 +863,7 @@ class Editor:
                 self.s_drag_start = None
 
             if pyxel.btnp(pyxel.MOUSE_BUTTON_RIGHT):
-                self.current_color = pyxel.images[self.s_image].pget(mx, my)
+                self.s_color = pyxel.images[self.s_image].pget(mx, my)
 
         else:
             self.s_drag_start = None
@@ -811,8 +877,8 @@ class Editor:
             self.s_offset_y += self.s_zoom // 2
         if pyxel.btnp(pyxel.KEY_UP, repeat=10):
             self.s_offset_y -= self.s_zoom // 2
-        self.s_offset_x = max(0, min(256 - self.s_zoom, self.s_offset_x))
-        self.s_offset_y = max(0, min(256 - self.s_zoom, self.s_offset_y))
+        self.s_offset_x = max(0, min(pyxel.images[self.s_image].width - self.s_zoom, self.s_offset_x))
+        self.s_offset_y = max(0, min(pyxel.images[self.s_image].height - self.s_zoom, self.s_offset_y))
 
         #? Selectors
         self.s_image_selector.update()
@@ -836,8 +902,6 @@ class Editor:
             self.current_tool = c if c is not None else self.current_tool
 
     def draw_sprite_editor(self):
-        pyxel.cls(0)
-
         #? Borders
         pyxel.rect(0, 0, 258, 16, self.COLORS_LEN)
         pyxel.rect(0, 16, 25, 128, self.COLORS_LEN)
@@ -863,13 +927,6 @@ class Editor:
             for x in range(self.s_zoom):
                 c = pyxel.images[self.s_image].pget(self.s_offset_x + x, self.s_offset_y + y)
                 pyxel.rect(EDITOR_X + x * self.s_tile_size, EDITOR_Y + y * self.s_tile_size, self.s_tile_size, self.s_tile_size, c)
-
-        #? Grid
-        if self.s_grid:
-            for y in range(16, 144, self.s_grid_size * self.s_tile_size):
-                pyxel.rect(25, y - 1, 128, 1, self.COLORS_LEN)
-            for x in range(25, 153, self.s_grid_size * self.s_tile_size):
-                pyxel.rect(x - 1, 16, 1, 128, self.COLORS_LEN)
 
         #? Preview
         if self.s_selection and self.current_tool == SELECT_TOOL:
@@ -909,10 +966,25 @@ class Editor:
 
             self.draw_preview_pixels(pixels)
 
+        #? Grid
+        if self.s_grid:
+            for y in range(16, 144, self.s_grid_size * self.s_tile_size):
+                pyxel.rect(25, y - 1, 128, 1, self.COLORS_LEN)
+            for x in range(25, 153, self.s_grid_size * self.s_tile_size):
+                pyxel.rect(x - 1, 16, 1, 128, self.COLORS_LEN)
+
+        #? Color Number
+        tx = (pyxel.mouse_x - 169) // 8 + self.t_tile_offset_x // 8
+        ty = (pyxel.mouse_y - 80) // 8 + self.t_tile_offset_y // 8
+        if collision_point_rect(pyxel.mouse_x, pyxel.mouse_y, 169, 80, 64, 32) and tx + ty * 8 < self.COLORS_LEN:
+            pyxel.text(169, 72, f"{tx + ty * 8}", self.COLORS_LEN + 1)
+        else:
+            pyxel.text(169, 72, f"{self.s_color}", self.COLORS_LEN + 1)
+
     #? ---------- TILEMAP EDITOR ---------- ?#
 
     def push_tilemap_history(self):
-        snapshot = [[pyxel.tilemaps[self.t_tilemap].pget(x, y) for x in range(256)] for y in range(256)]
+        snapshot = [[pyxel.tilemaps[self.t_tilemap].pget(x, y) for x in range(pyxel.tilemaps[self.t_tilemap].width)] for y in range(pyxel.tilemaps[self.t_tilemap].height)]
         self.t_history.append((self.t_tilemap, snapshot))
         if len(self.t_history) > 40:
             self.t_history.pop(0)
@@ -920,8 +992,8 @@ class Editor:
     def undo_tilemap(self):
         if self.t_history:
             tilemap, snapshot = self.t_history.pop()
-            for y in range(256):
-                for x in range(256):
+            for y in range(pyxel.tilemaps[self.t_tilemap].height):
+                for x in range(pyxel.tilemaps[self.t_tilemap].width):
                     pyxel.tilemaps[tilemap].pset(x, y, snapshot[y][x])
 
     def flood_fill_tilemap(self, x:int, y:int, old_tile:tuple, new_tile:tuple):
@@ -1018,7 +1090,7 @@ class Editor:
             abs_x = min_x + rel_x + self.t_tilemap_offset_x
             abs_y = min_y + rel_y + self.t_tilemap_offset_y
             
-            if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+            if 0 <= abs_x < pyxel.tilemaps[self.t_tilemap].width and 0 <= abs_y < pyxel.tilemaps[self.t_tilemap].height:
                 pyxel.tilemaps[self.t_tilemap].pset(abs_x, abs_y, tile)
 
     def rotate_tilemap_selection(self):
@@ -1054,7 +1126,7 @@ class Editor:
                 if new_x <= max_x and new_y <= max_y:
                     abs_x = new_x + self.t_tilemap_offset_x
                     abs_y = new_y + self.t_tilemap_offset_y
-                    if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                    if 0 <= abs_x < pyxel.tilemaps[self.t_tilemap].width and 0 <= abs_y < pyxel.tilemaps[self.t_tilemap].height:
                         pyxel.tilemaps[self.t_tilemap].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def flip_tilemap_selection_horizontal(self):
@@ -1083,7 +1155,7 @@ class Editor:
                 new_x = min_x + (width - 1 - x)
                 abs_x = new_x + self.t_tilemap_offset_x
                 abs_y = (min_y + y) + self.t_tilemap_offset_y
-                if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                if 0 <= abs_x < pyxel.tilemaps[self.t_tilemap].width and 0 <= abs_y < pyxel.tilemaps[self.t_tilemap].height:
                     pyxel.tilemaps[self.t_tilemap].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def flip_tilemap_selection_vertical(self):
@@ -1112,7 +1184,7 @@ class Editor:
                 new_y = min_y + (height - 1 - y)
                 abs_x = (min_x + x) + self.t_tilemap_offset_x
                 abs_y = new_y + self.t_tilemap_offset_y
-                if 0 <= abs_x < 256 and 0 <= abs_y < 256:
+                if 0 <= abs_x < pyxel.tilemaps[self.t_tilemap].width and 0 <= abs_y < pyxel.tilemaps[self.t_tilemap].height:
                     pyxel.tilemaps[self.t_tilemap].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def update_tilemap_editor(self):
@@ -1169,7 +1241,7 @@ class Editor:
                     pyxel.tilemaps[self.t_tilemap].pset(mx, my, (tx, ty))
                     axis_x = self.t_tilemap_offset_x + 8
                     mx_mirror = axis_x - (mx - axis_x) - 1
-                    if 0 <= mx_mirror < 256:
+                    if 0 <= mx_mirror < pyxel.tilemaps[self.t_tilemap].width:
                         pyxel.tilemaps[self.t_tilemap].pset(mx_mirror, my, (tx, ty))
                 elif self.current_tool == SELECT_TOOL:
                     x = (pyxel.mouse_x - EDITOR_X) // TILEMAP_TILE_SIZE
@@ -1196,6 +1268,12 @@ class Editor:
                     self.commit_tiles(self.line(x0, y0, mx, my))
 
                 self.t_drag_start = None
+
+            if pyxel.btnp(pyxel.MOUSE_BUTTON_RIGHT):
+                tx, ty = pyxel.tilemaps[self.t_tilemap].pget(mx, my)
+                self.t_tile_offset_x = tx * 8
+                self.t_tile_offset_y = ty * 8
+                self.t_tile_selected = (0, 0)
 
         #? Tiles Picker
         if collision_point_rect(pyxel.mouse_x, pyxel.mouse_y, 169, 80, 64, 64):
@@ -1224,10 +1302,10 @@ class Editor:
                 self.t_tilemap_offset_y += 8
             if pyxel.btnp(pyxel.KEY_UP, repeat=10):
                 self.t_tilemap_offset_y -= 8
-        self.t_tilemap_offset_x = max(0, min(256 - 16, self.t_tilemap_offset_x))
-        self.t_tilemap_offset_y = max(0, min(256 - 16, self.t_tilemap_offset_y))
-        self.t_tile_offset_x = max(0, min(256 - 64, self.t_tile_offset_x))
-        self.t_tile_offset_y = max(0, min(256 - 64, self.t_tile_offset_y))
+        self.t_tilemap_offset_x = max(0, min(pyxel.tilemaps[self.t_tilemap].width - 16, self.t_tilemap_offset_x))
+        self.t_tilemap_offset_y = max(0, min(pyxel.tilemaps[self.t_tilemap].height - 16, self.t_tilemap_offset_y))
+        self.t_tile_offset_x = max(0, min(pyxel.tilemaps[self.t_tilemap].width - 64, self.t_tile_offset_x))
+        self.t_tile_offset_y = max(0, min(pyxel.tilemaps[self.t_tilemap].height - 64, self.t_tile_offset_y))
 
         #? Selectors
         self.t_tilemap_selector.update()
@@ -1251,8 +1329,6 @@ class Editor:
             self.current_tool = c if c is not None else self.current_tool
 
     def draw_tilemap_editor(self):
-        pyxel.cls(0)
-
         #? Borders
         pyxel.rect(0, 0, 258, 16, self.COLORS_LEN)
         pyxel.rect(0, 16, 25, 128, self.COLORS_LEN)
@@ -1275,13 +1351,6 @@ class Editor:
             pyxel.bltm(EDITOR_X, EDITOR_Y, self.t_tilemap, self.t_tilemap_offset_x * 8, self.t_tilemap_offset_y * 8, EDITOR_SIZE, EDITOR_SIZE, 0)
         else:
             pyxel.bltm(EDITOR_X, EDITOR_Y, self.t_tilemap, self.t_tilemap_offset_x * 8, self.t_tilemap_offset_y * 8, EDITOR_SIZE, EDITOR_SIZE)
-
-        #? Grid
-        if self.t_grid:
-            for y in range(16, 144, self.t_grid_size * TILEMAP_TILE_SIZE):
-                pyxel.rect(25, y - 1, 128, 1, self.COLORS_LEN)
-            for x in range(25, 153, self.t_grid_size * TILEMAP_TILE_SIZE):
-                pyxel.rect(x - 1, 16, 1, 128, self.COLORS_LEN)
 
         #? Preview
         if self.t_selection and self.current_tool == SELECT_TOOL:
@@ -1322,6 +1391,13 @@ class Editor:
 
             self.draw_preview_tiles(tiles)
 
+        #? Grid
+        if self.t_grid:
+            for y in range(16, 144, self.t_grid_size * TILEMAP_TILE_SIZE):
+                pyxel.rect(25, y - 1, 128, 1, self.COLORS_LEN)
+            for x in range(25, 153, self.t_grid_size * TILEMAP_TILE_SIZE):
+                pyxel.rect(x - 1, 16, 1, 128, self.COLORS_LEN)
+
         #? Tiles Picker
         pyxel.blt(169, 80, self.t_image, self.t_tile_offset_x, self.t_tile_offset_y, 64, 64)
         pyxel.rectb(169 + self.t_tile_selected[0] * 8, 80 + self.t_tile_selected[1] * 8, 8, 8, self.COLORS_LEN + 1)
@@ -1329,6 +1405,9 @@ class Editor:
             tx = (pyxel.mouse_x - 169) // 8 + self.t_tile_offset_x // 8
             ty = (pyxel.mouse_y - 80) // 8 + self.t_tile_offset_y // 8
             pyxel.text(169, 72, f"({tx},{ty})", self.COLORS_LEN + 1)
+        else:
+            pyxel.text(169, 72, f"({self.t_tile_offset_x // 8 + self.t_tile_selected[0]},{self.t_tile_offset_y // 8 + self.t_tile_selected[1]})", self.COLORS_LEN + 1)
+
 
     #? ---------- AUTOTILE EDITOR ---------- ?#
 
@@ -1340,6 +1419,10 @@ class Editor:
                 l.append(Button(80 + x * 10, y, c, self.COLORS_LEN))
                 c += 1
         return l
+
+    def select_a_buttons(self, l:list):
+        for image, tile_y in l:
+            self.a_buttons[image][tile_y].selected = True
 
     def draw_tileset(self, x:int, y:int, image:int, tile_y:int):
         pyxel.blt(x, y + 8, image, 0, tile_y * 8, 8, 8)
@@ -1364,10 +1447,10 @@ class Editor:
 
     def update_autotile_editor(self):
         #? Buttons
-        for button in eval(f"self.a_buttons_{self.a_image}"):
+        for button in self.a_buttons[self.a_image]:
             button.update()
 
-        exec(f"self.a_tiles_y_{self.a_image} = [b.id for b in self.a_buttons_{self.a_image} if b.selected]")
+        self.a_tiles_y[self.a_image] = [b.id for b in self.a_buttons[self.a_image] if b.selected]
 
         #? Selectors
         self.a_image_selector.update()
@@ -1380,13 +1463,13 @@ class Editor:
         self.a_image_selector.draw()
 
         #? Buttons
-        for button in eval(f"self.a_buttons_{self.a_image}"):
+        for button in self.a_buttons[self.a_image]:
             button.draw()
 
         #? Tilesets
         x, y = 0, 0
-        for i in range(len(eval(f"self.a_tiles_y_{self.a_image}"))):
-            self.draw_tileset(25 + x, 22 + y, self.a_image, eval(f"self.a_tiles_y_{self.a_image}[{i}]"))
+        for i in range(len(self.a_tiles_y[self.a_image])):
+            self.draw_tileset(25 + x, 22 + y, self.a_image, self.a_tiles_y[self.a_image][i])
             x = (x + 46) % 230
             if x == 0:
                 y += 36
@@ -1487,11 +1570,23 @@ class Editor:
             frame_text = f"Frame: {self.n_frame + 1}/{t}"
             pyxel.text(EDITOR_X + 2, 148, frame_text, self.COLORS_LEN + 1)
 
+    #? ---------- SOUND EDITOR ---------- ?#
+
+    def update_sound_editor(self):
+        pass
+
+    def draw_sound_editor(self):
+        pyxel.cls(1)
+
     #? ---------- MAIN ---------- ?#
     
     def update(self):
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
+            self.save()
+            pyxel.quit()
+
         if (pyxel.btn(pyxel.KEY_CTRL) or pyxel.btn(pyxel.KEY_GUI)) and pyxel.btnp(pyxel.KEY_S):
-            pyxel.save(self.PYXRES_PATH)
+            self.save()
 
         for editor_button in self.editor_buttons:
             c = editor_button.update(self.current_editor)
@@ -1501,16 +1596,24 @@ class Editor:
         elif self.current_editor == TILEMAP_EDITOR:    self.update_tilemap_editor()
         elif self.current_editor == AUTOTILE_EDITOR:   self.update_autotile_editor()
         elif self.current_editor == ANIMATION_EDITOR:  self.update_animation_editor()
+        elif self.current_editor == SOUND_EDITOR:      self.update_sound_editor()
 
     def draw(self):
         if self.current_editor == SPRITE_EDITOR:       self.draw_sprite_editor()
         elif self.current_editor == TILEMAP_EDITOR:    self.draw_tilemap_editor()
         elif self.current_editor == AUTOTILE_EDITOR:   self.draw_autotile_editor()
         elif self.current_editor == ANIMATION_EDITOR:  self.draw_animation_editor()
+        elif self.current_editor == SOUND_EDITOR:      self.draw_sound_editor()
 
         for editor_button in self.editor_buttons:
             editor_button.draw()
 
+        for y in range(len(MOUSE)):
+            for x in range(len(MOUSE[y])):
+                if MOUSE[y][x] != 0:
+                    pyxel.rect(pyxel.mouse_x + x, pyxel.mouse_y + y, 1, 1, self.COLORS_LEN + MOUSE[y][x])
+
 if __name__ == "__main__":
+    #edit_pyxres("new.pyxres", 2, 256, 128, 2)
     EXTENDED_PICO8_COLORS = [0x000000, 0x1D2B53, 0x7E2553, 0x008751, 0xAB5236, 0x5F574F, 0xC2C3C7, 0xFFF1E8, 0xFF004D, 0xFFA300, 0xFFEC27, 0x00E436, 0x29ADFF, 0x83769C, 0xFF77A8, 0xFFCCAA, 0x1A1C2C, 0x5D275D, 0x008080, 0x1B6535, 0x73464D, 0x9D9D9D, 0xFFFFFF, 0xFF6C24, 0xFFD93F, 0xB2D732, 0x3CA370, 0x0066CC, 0x45283C, 0xA288AE, 0xF3B4B4, 0xD4A373]
-    Editor("assets_rooms.pyxres", EXTENDED_PICO8_COLORS)
+    Editor("assets.pyxres", EXTENDED_PICO8_COLORS)
