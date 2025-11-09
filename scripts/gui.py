@@ -1,13 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 10/09/2025
-
-TODO :
-- Checkbox
-- Slider
-- Dialog System
-- Scrollable Panel
+@updated : 09/11/2025
 """
 
 from draw import Sprite, rounded_rect, rounded_rectb
