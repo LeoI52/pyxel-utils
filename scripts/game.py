@@ -1,17 +1,17 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 20/10/2025
+@updated : 29/11/2025
 """
 
-from tweening import Tween
-from particles import *
-from gui import Text
+from tween import Tween
 from vars import *
 import random
 import pyxel
 import math
 import time
+
+#? -------------------- TRANSITIONS -------------------- ?#
 
 class Transition:
 
@@ -29,7 +29,7 @@ class Transition:
 class TransitionDither(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, 1 / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, 1 / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.dither = 0
 
     def update(self, pyxel_manager):
@@ -52,7 +52,7 @@ class TransitionCircle(Transition):
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
         self.radius = 0
         self.max_radius = math.hypot(pyxel.width, pyxel.height) / 2
-        super().__init__(new_scene_id, self.max_radius / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, self.max_radius / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
 
     def update(self, pyxel_manager):
         self.radius += self.speed * self.direction
@@ -70,7 +70,7 @@ class TransitionCircle(Transition):
 class TransitionClosingDoors(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, pyxel.width / (duration * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, pyxel.width / (duration * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.w = 0
         self.x = pyxel.width
 
@@ -94,7 +94,7 @@ class TransitionRectangle(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
         speed = pyxel.width / (duration / 2 * fps) if dir in [LEFT, RIGHT] else pyxel.height / (duration / 2 * fps)
-        super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.dir = dir
         self.w = 0
         self.x = pyxel.width if dir == RIGHT else 0
@@ -137,7 +137,7 @@ class TransitionOuterCircle(Transition):
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
         self.start_end = int(math.hypot(pyxel.width, pyxel.height) / 2) + 1
         self.end = self.start_end
-        super().__init__(new_scene_id, math.ceil(self.start_end / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, math.ceil(self.start_end / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
 
     def update(self, pyxel_manager):
         self.end -= self.speed * self.direction
@@ -157,7 +157,7 @@ class TransitionOuterCircle(Transition):
 class TransitionTriangle(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, (max(pyxel.width, pyxel.height) * 2.5) / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, (max(pyxel.width, pyxel.height) * 2.5) / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.size = 0
         self.angle = 270
 
@@ -182,7 +182,7 @@ class TransitionTriangle(Transition):
 class TransitonPixelate(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, cell_size:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, round((pyxel.width // cell_size) * (pyxel.height // cell_size) / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id, round((pyxel.width // cell_size) * (pyxel.height // cell_size) / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.hidden_pixels = [(x, y) for x in range(0, pyxel.width, cell_size) for y in range(0, pyxel.height, cell_size)]
         self.visible_pixels = []
         self.cell_size = cell_size
@@ -212,7 +212,7 @@ class TransitonPixelate(Transition):
 class TransitionDiagonal(Transition):
     def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=TOP_LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
         self.max_pos = pyxel.width + pyxel.height
-        super().__init__(new_scene_id,  self.max_pos / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_pyxres)
+        super().__init__(new_scene_id,  self.max_pos / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
         self.start = self.end = 0
         self.dir = dir
 
@@ -238,6 +238,34 @@ class TransitionDiagonal(Transition):
             else:
                 pyxel.line(pyxel_manager.camera_x + pyxel.width, pyxel_manager.camera_y + pyxel.height - i, pyxel_manager.camera_x + pyxel.width - i, pyxel_manager.camera_y + pyxel.height, self.transition_color)
 
+class TransitionSlice(Transition):
+    
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, num_slices:int=8, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+        self.num_slices = num_slices
+        self.slice_height = pyxel.height // num_slices
+        super().__init__(new_scene_id, pyxel.width / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        self.position = 0
+    
+    def update(self, pyxel_manager):
+        self.position += self.speed * self.direction
+        
+        if self.position > pyxel.width and self.direction == 1:
+            self.direction = -1
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+        if self.position < 0 and self.direction == -1:
+            pyxel_manager.finish_transition()
+    
+    def draw(self, pyxel_manager):
+        for i in range(self.num_slices):
+            y = pyxel_manager.camera_y + i * self.slice_height
+            
+            if i % 2 == 0:
+                pyxel.rect(pyxel_manager.camera_x, y, self.position, self.slice_height, self.transition_color)
+            else:
+                pyxel.rect(pyxel_manager.camera_x + pyxel.width - self.position, y, self.position, self.slice_height, self.transition_color)
+
+#? -------------------- SCENE MANAGER -------------------- ?#
+
 class PyxelManager:
 
     def __init__(self, width:int, height:int, scenes:list, default_scene_id:int=0, fps:int=60, fullscreen:bool=False, mouse:bool=False, quit_key:int=pyxel.KEY_ESCAPE, camera_x:int=0, camera_y:int=0, debug_background_color:int=0, debug_text_color:int=7):
@@ -249,11 +277,10 @@ class PyxelManager:
 
         self.__cam_x = self.__cam_tx = camera_x
         self.__cam_y = self.__cam_ty = camera_y
+        self.__cam_interpolation = 0.1
         self.__cam_bounds = (-float("inf"), -float("inf"), float("inf"), float("inf"))
         self.__shake_amount = 0
         self.__shake_decay = 0
-
-        self.__flash = {}
 
         self.__fps = fps
         self.__previous_frame_time = time.time()
@@ -297,9 +324,10 @@ class PyxelManager:
         self.__cam_x = self.__cam_tx = max(self.__cam_bounds[0], min(new_camera_x, self.__cam_bounds[2] - pyxel.width))
         self.__cam_y = self.__cam_ty = max(self.__cam_bounds[1], min(new_camera_y, self.__cam_bounds[3] - pyxel.height))
 
-    def move_camera(self, new_camera_x:int, new_camera_y:int):
+    def move_camera(self, new_camera_x:int, new_camera_y:int, interpolation:float=0.1):
         self.__cam_tx = max(self.__cam_bounds[0], min(new_camera_x, self.__cam_bounds[2] - pyxel.width))
         self.__cam_ty = max(self.__cam_bounds[1], min(new_camera_y, self.__cam_bounds[3] - pyxel.height))
+        self.__cam_interpolation = interpolation
 
     def set_camera_bounds(self, min_x:int, min_y:int, max_x:int, max_y:int):
         self.__cam_bounds = (min_x, min_y, max_x, max_y)
@@ -311,9 +339,6 @@ class PyxelManager:
     def shake_camera(self, amount:int, decay:float):
         self.__shake_amount = amount
         self.__shake_decay = decay
-
-    def flash(self, lifespan:int, color:int, intensity:float):
-        self.__flash = {"life":lifespan, "color":color, "intensity":intensity}
 
     def change_scene(self, new_scene_id:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False):
         self.set_camera(new_camera_x, new_camera_y)
@@ -346,8 +371,8 @@ class PyxelManager:
         if self.__transition:
             self.__transition.update(self)
 
-        self.__cam_x += (self.__cam_tx - self.__cam_x) * 0.1
-        self.__cam_y += (self.__cam_ty - self.__cam_y) * 0.1
+        self.__cam_x += (self.__cam_tx - self.__cam_x) * self.__cam_interpolation
+        self.__cam_y += (self.__cam_ty - self.__cam_y) * self.__cam_interpolation
 
         if self.__shake_amount > 0:
             a = self.__shake_amount
@@ -363,14 +388,6 @@ class PyxelManager:
         self.__current_scene.draw()
         if self.__transition:
             self.__transition.draw(self)
-
-        if self.__flash:
-            pyxel.dither(self.__flash["intensity"])
-            pyxel.rect(self.__cam_x, self.__cam_y, pyxel.width, pyxel.height, self.__flash["color"])
-            pyxel.dither(1)
-            self.__flash["life"] -= 1
-            if self.__flash["life"] == 0:
-                self.__flash = {}
 
         if self.debug:
             pyxel.rect(self.__cam_x + 1, self.__cam_y + 1, 66, 27, self.debug_background_color)
@@ -397,23 +414,26 @@ class Scene:
         self.palette = palette
         self.screen_mode = screen_mode
 
+#? -------------------- CUTSCENES -------------------- ?#
+
 class CutsceneAction:
 
-    def __init__(self, duration:float, update_action=None, draw_action=None):
+    def __init__(self, duration:float, update_action=None, draw_action=None, fps:int=60):
         self.duration = duration
         self.update_action = update_action
         self.draw_action = draw_action
         self.elapsed = 0
+        self.dt = 1 / fps
         self.finished = False
 
-    def update(self, dt:float):
+    def update(self):
         if self.finished:
             return
         
         if self.update_action:
-            self.update_action(self, dt)
+            self.update_action(self)
 
-        self.elapsed += dt
+        self.elapsed += self.dt
         if self.elapsed >= self.duration:
             self.finished = True
 
@@ -423,8 +443,8 @@ class CutsceneAction:
 
 class Cutscene:
 
-    def __init__(self):
-        self.actions = []
+    def __init__(self, actions:list):
+        self.actions = actions
         self.action_index = 0
         self.active = False
         self.finished = False
@@ -440,13 +460,13 @@ class Cutscene:
             action.elapsed = 0
             action.finished = False
 
-    def update(self, dt:float):
+    def update(self):
         if not self.active or self.finished:
             return
         
         if self.action_index < len(self.actions):
             action = self.actions[self.action_index]
-            action.update(dt)
+            action.update()
             if action.finished:
                 self.action_index += 1
         else:
@@ -461,105 +481,67 @@ class Cutscene:
             action = self.actions[self.action_index]
             action.draw()
 
-def parallel_action(actions:list, duration:float):
-    def update(action, dt):
+def parallel_action(actions:list, duration:float, fps:int=60):
+    
+    def update(action):
         for act in actions:
-            act.update(dt)
+            act.update()
 
     def draw(action):
         for act in actions:
             act.draw()
 
-    return CutsceneAction(duration, update, draw)
+    return CutsceneAction(duration, update, draw, fps)
 
-def wait_action(duration:float):
-    return CutsceneAction(duration)
+def wait_action(duration:float, fps:int=60):
+    return CutsceneAction(duration, fps=fps)
 
-def tween_camera_action(manager:PyxelManager, start_x:int, start_y:int, end_x:int, end_y:int, duration:float, easing=None):
-    tween_x = Tween(start_x, end_x, duration, autostart=True, easing_function=easing)
-    tween_y = Tween(start_y, end_y, duration, autostart=True, easing_function=easing)
+def tween_camera_action(manager:PyxelManager, start_x:int, start_y:int, end_x:int, end_y:int, duration:float, easing=None, fps:int=60):
+    tween_x = Tween(start_x, end_x, duration, True, easing, fps)
+    tween_y = Tween(start_y, end_y, duration, True, easing, fps)
 
-    def update(action, dt):
-        manager.set_camera(int(tween_x.update(dt)), int(tween_y.update(dt)))
+    def update(action):
+        manager.set_camera(tween_x.update(), tween_y.update())
 
-    return CutsceneAction(duration, update)
+    return CutsceneAction(duration, update, fps=fps)
 
-def shake_camera_action(manager:PyxelManager, amount:int, decay:float, duration:float):
-    def update(action, dt):
-        if not action.finished:
+def shake_camera_action(manager:PyxelManager, amount:int, decay:float, duration:float, fps:int=60):
+
+    def update(action):
+        if action.elapsed <= 0:
             manager.shake_camera(amount, decay)
 
-    return CutsceneAction(duration, update)
+    return CutsceneAction(duration, update, fps=fps)
 
-def palette_effect_action(manager:PyxelManager, effect_function, duration:float, **kwargs):
-    def update(action, dt):
+def palette_effect_action(manager:PyxelManager, effect_function, duration:float, fps:int=60, **kwargs):
+
+    def update(action):
         manager.apply_palette_effect(effect_function, **kwargs)
         if action.finished:
             manager.reset_palette()
 
-    return CutsceneAction(duration, update)
+    return CutsceneAction(duration, update, fps)
 
-def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end_y:float, duration:float, easing=None):
-    tween_x = Tween(start_x, end_x, duration, autostart=True, easing_function=easing)
-    tween_y = Tween(start_y, end_y, duration, autostart=True, easing_function=easing)
+def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end_y:float, duration:float, easing=None, fps:int=60):
+    tween_x = Tween(start_x, end_x, duration, True, easing, fps)
+    tween_y = Tween(start_y, end_y, duration, True, easing, fps)
 
-    def update(action, dt):
-        obj.x = tween_x.update(dt)
-        obj.y = tween_y.update(dt)
+    def update(action):
+        obj.x = tween_x.update()
+        obj.y = tween_y.update()
 
-    return CutsceneAction(duration, update)
+    return CutsceneAction(duration, update, fps)
 
-def particles_action(manager:ParticleManager, particle_factory, count:int, duration:float=0.01):
-    def update(action, dt):
-        for _ in range(count):
-            manager.add_particle(particle_factory())
-
-    return CutsceneAction(duration, update)
-
-def shockwave_action(manager:ShockwaveManager, shockwave:CircleShockwave, duration:float=0.01):
-    def update(action, dt):
-        manager.add_shockwave(shockwave)
-
-    return CutsceneAction(duration, update)
-
-def typewriter_text_action(text:Text, duration:float):
-    visible_chars = [0]
-    total_chars = len(text.text)
-
-    def update(action, dt):
-        text.update()
-        progress = min(action.elapsed / duration, 1.0)
-        visible_chars[0] = int(total_chars * progress)
-
-    def draw(action):
-        partial_text = text.text[:visible_chars[0]]
-        Text(
-            partial_text, text.x, text.y,
-            text.text_colors, text.font_size, text.font,
-            anchor=text._Text__anchor,
-            relative=text.relative,
-            color_mode=text.color_mode,
-            wavy=text.wavy,
-            shadow=text.shadow, shadow_color=text.shadow_color,
-            outline=text.outline, outline_color=text.outline_color,
-            glitch_intensity=text.glitch_intensity
-        ).draw()
-
-    return CutsceneAction(duration, update, draw)
+#? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
-    from tweening import ease_out_quint
 
     def update_1():
-        if pyxel.btnp(pyxel.KEY_F):
-            pm.flash(3, 7, 1)
 
         if pyxel.btnp(pyxel.KEY_B):
             pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):
-            pm.change_scene_transition(TransitionDiagonal(1, 2, 1, BOTTOM_RIGHT))
-        if pyxel.btnp(pyxel.KEY_C):
-            pm.change_scene_transition(TransitionTriangle(2, 4, 1, action=lambda: cutscene.start()))
+            pm.change_scene_transition(TransitonPixelate(1, 2, 8, 1))
 
     def draw_1():
         pyxel.cls(10)
@@ -573,29 +555,8 @@ if __name__ == "__main__":
     def draw_2():
         pyxel.cls(3)
 
-    def update_3():
-        cutscene.update(1/60)
-
-        if cutscene.finished:
-            pm.change_scene_transition(TransitionClosingDoors(0, 4, 1))
-
-    def draw_3():
-        pyxel.cls(12)
-
-        pyxel.rect(10, 10, 50, 50, 8)
-
-        cutscene.draw()
-
     s1 = Scene(0, "Game.py Example - Scene 1", update_1, draw_1)
     s2 = Scene(1, "Game.py Example - Scene 2", update_2, draw_2)
-    s3 = Scene(2, "Game.py Example - Scene 3", update_3, draw_3)
-    pm = PyxelManager(228, 128, [s1, s2, s3], mouse=True)
-
-    cutscene = Cutscene()
-
-    cutscene.add_action(wait_action(1))
-    cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
-    cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
-    cutscene.add_action(wait_action(0.5))
+    pm = PyxelManager(228, 128, [s1, s2], mouse=True)
 
     pm.run()

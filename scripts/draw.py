@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 10/09/2025
+@updated : 10/11/2025
 """
 
 from other import get_anchored_position
@@ -10,10 +10,12 @@ import random
 import pyxel
 import math
 
+#? -------------------- SPRITES -------------------- ?#
+
 class DrawGroup:
 
-    def __init__(self, group:list=None, key_function=lambda item: item.y):
-        self.key_function = key_function
+    def __init__(self, group:list=None, key_function=None):
+        self.key_function = key_function or (lambda item: item.y + item.w // 2)
         self.group = group or []
 
     def add(self, item):
@@ -25,7 +27,8 @@ class DrawGroup:
 
     def update(self):
         for item in self.group:
-            item.update()
+            if callable(getattr(item, "update")):
+                item.update()
 
     def draw(self):
         for item in sorted(self.group, key=self.key_function):
@@ -45,18 +48,18 @@ class Animation:
 
     def __init__(self, sprite:Sprite, total_frames:int=1, frame_duration:int=20, loop:bool=True):
         self.sprite = sprite
-        self.__total_frames = total_frames
+        self.total_frames = total_frames
         self.frame_duration = frame_duration
-        self.__loop = loop
+        self.loop = loop
         self.__start_frame = pyxel.frame_count
         self.current_frame = 0
         self.__is_finished = False
 
     def is_finished(self)-> bool:
-        return self.__is_finished and not self.__loop
+        return self.__is_finished and not self.loop
     
     def is_looped(self)-> bool:
-        return self.__loop
+        return self.loop
     
     def reset(self):
         self.__start_frame = pyxel.frame_count
@@ -70,19 +73,21 @@ class Animation:
         if pyxel.frame_count - self.__start_frame >= self.frame_duration:
             self.__start_frame = pyxel.frame_count
             self.current_frame += 1
-            if self.current_frame >= self.__total_frames:
-                if self.__loop:
+            if self.current_frame >= self.total_frames:
+                if self.loop:
                     self.current_frame = 0
                 else:
                     self.__is_finished = True
-                    self.current_frame = self.__total_frames - 1
+                    self.current_frame = self.total_frames - 1
 
-    def draw(self, x:int, y:int, anchor:int=ANCHOR_TOP_LEFT):
+    def draw(self, x:int, y:int, anchor:int=TOP_LEFT):
         x, y = get_anchored_position(x, y, self.sprite.w, self.sprite.h, anchor)
 
         w = -self.sprite.w if self.sprite.flip_horizontal else self.sprite.w
         h = -self.sprite.h if self.sprite.flip_vertical else self.sprite.h
         pyxel.blt(x, y, self.sprite.img, self.sprite.u + self.current_frame * abs(self.sprite.w), self.sprite.v, w, h, self.sprite.colkey)
+
+#? -------------------- DRAW UI -------------------- ?#
 
 def rounded_rect(x:int, y:int, width:int, height:int, corner_radius:int, color:int):
     corner_radius = min(corner_radius, min(width, height) // 2)
@@ -151,6 +156,8 @@ def draw_speech_bubble(x:int, y:int, width:int, height:int, tail_size:int, tail_
         if border:
             pyxel.line(x + width, tail_y - tail_size // 2, tail_target_x, tail_target_y, border_color)
             pyxel.line(x + width, tail_y + tail_size // 2, tail_target_x, tail_target_y, border_color)
+
+#? -------------------- DRAW -------------------- ?#
 
 def draw_checkered_pattern(x:int, y:int, width:int, height:int, cell_size:int, color1:int, color2:int):
     for row in range((height + cell_size - 1) // cell_size):
@@ -221,6 +228,8 @@ def draw_reflection(x:int, y:int, width:int, height:int, water_color:int, colkey
             off_x = math.cos(pyxel.frame_count * wave_speed + j * wave_offset) * wave_amplitude
             off_y = math.sin(pyxel.frame_count * wave_speed)
             pyxel.pset(x + i + off_x, y + height - j + off_y, color)
+
+#? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
     spiral_colors = [8, 9, 10, 11, 12, 13, 14, 15]

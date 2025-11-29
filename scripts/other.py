@@ -1,14 +1,14 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 13/08/2025
+@updated : 29/11/2025
 """
 
 from vars import *
 import json
 import os
 
-class SavingSystem: 
+class SavingSystem:
 
     def __init__(self):
         self.__data = {}
@@ -32,16 +32,29 @@ class SavingSystem:
                 print(f"Failed to load {filename}: {e}")
 
 def get_anchored_position(x:int, y:int, width:int, height:int, anchor:int)-> tuple:
-    if anchor in [ANCHOR_TOP_RIGHT, ANCHOR_BOTTOM_RIGHT, ANCHOR_RIGHT]:
+    if anchor in [TOP_RIGHT, BOTTOM_RIGHT, RIGHT]:
         x -= width
-    if anchor in [ANCHOR_BOTTOM_LEFT, ANCHOR_BOTTOM_RIGHT, ANCHOR_BOTTOM]:
+    if anchor in [BOTTOM_LEFT, BOTTOM_RIGHT, BOTTOM]:
         y -= height
-    if anchor in [ANCHOR_TOP, ANCHOR_BOTTOM, ANCHOR_CENTER]:
+    if anchor in [TOP, BOTTOM, CENTER]:
         x -= width // 2
-    if anchor in [ANCHOR_LEFT, ANCHOR_RIGHT, ANCHOR_CENTER]:
+    if anchor in [LEFT, RIGHT, CENTER]:
         y -= height // 2
         
     return x, y
 
-def clamp(value:int|float, min_value:int|float, max_value:int|float)-> int|float:
-    return max(min_value, min(value, max_value))
+def get_anchored_position_x(x:int, width:int, anchor:int)-> int:
+    if anchor in [TOP_RIGHT, BOTTOM_RIGHT, RIGHT]:
+        x -= width
+    if anchor in [TOP, BOTTOM, CENTER]:
+        x -= width // 2
+
+    return x
+
+def get_anchored_position_y(y:int, height:int, anchor:int)-> int:
+    if anchor in [BOTTOM_LEFT, BOTTOM_RIGHT, BOTTOM]:
+        y -= height
+    if anchor in [LEFT, RIGHT, CENTER]:
+        y -= height // 2
+
+    return y

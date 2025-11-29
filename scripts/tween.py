@@ -1,28 +1,31 @@
 """
 @author : Léo Imbert
 @created : 06/09/2025
-@updated : 06/09/2025
+@updated : 29/11/2025
 """
 
 import math
 
+#? -------------------- TWEEN -------------------- ?#
+
 class Tween:
 
-    def __init__(self, start:int, end:int, duration:float, autostart:bool=False, easing_function=None):
+    def __init__(self, start:int, end:int, duration:float, autostart:bool=False, easing_function=None, fps:int=60):
         self.start = start
         self.end = end
         self.duration = duration
         self.ease = easing_function or (lambda t: t)
 
         self.elapsed = 0
+        self.dt = 1 / fps
         self.active = autostart
         self.value = start
 
-    def update(self, dt:float)-> float:
+    def update(self)-> float:
         if not self.active:
             return self.value
         
-        self.elapsed += dt
+        self.elapsed += self.dt
         t = self.ease(min(self.elapsed / self.duration, 1.0))
         self.value = self.start + (self.end - self.start) * t
 
@@ -30,6 +33,8 @@ class Tween:
             self.active = False
 
         return self.value
+    
+#? -------------------- EASING FUNCTIONS -------------------- ?#
     
 def linear(t):
     return t
@@ -118,6 +123,8 @@ def ease_in_out_bounce(t):
 def ease_wobble(t):
     return t + 0.1 * math.sin(8 * math.pi * t) * (1 - t)
 
+#? -------------------- EXAMPLE -------------------- ?#
+
 if __name__ == "__main__":
     import pyxel
 
@@ -128,7 +135,7 @@ if __name__ == "__main__":
 
     def update():
         global x
-        x = t.update(1/60)
+        x = t.update()
 
         if pyxel.btnp(pyxel.KEY_SPACE) and not t.active:
             if t.elapsed != 0:

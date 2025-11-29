@@ -9,6 +9,8 @@ import random
 import math
 import time
 
+#? -------------------- CONVERSION -------------------- ?#
+
 def hex_to_rgb(hex_val:int)-> tuple:
     r = (hex_val >> 16) & 0xFF
     g = (hex_val >> 8) & 0xFF
@@ -17,6 +19,8 @@ def hex_to_rgb(hex_val:int)-> tuple:
 
 def rgb_to_hex(r:int, g:int, b:int)-> int:
     return int(f"0x{r:02X}{g:02X}{b:02X}", 16)
+
+#? -------------------- PALETTES -------------------- ?#
 
 def inverted_palette(original_palette:list, kwargs:dict={})-> list:
     palette = []
@@ -200,6 +204,8 @@ def iridescent_palette(original_palette:list, kwargs:dict={})-> list:
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         palette.append(rgb_to_hex(int(r*255), int(g*255), int(b*255)))
     return palette
+
+#? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
     from vars import DEFAULT_PYXEL_COLORS
