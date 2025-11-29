@@ -120,6 +120,9 @@ class FlashManager:
     def __init__(self):
         self.__flashes = []
 
+    def reset(self):
+        self.__flashes = []
+
     def add_flash(self, flash:Flash):
         self.__flashes.append(flash)
 

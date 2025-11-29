@@ -1,7 +1,5 @@
 import pyxel
 import random
-import math
-from scripts.vars import *
 
 pyxel.init(8, 8, fps=60)
 pyxel.fullscreen(True)
@@ -254,20 +252,11 @@ class RainOverlay:
         for r in self.ripples:
             r.draw()
 
-chars_list = list(FONT_DEFAULT.keys())
-char = 0
-
 def update():
-    global char
-    if pyxel.btnp(pyxel.KEY_RIGHT):
-        char += 1
-    if pyxel.btnp(pyxel.KEY_LEFT):
-        char -= 1
+    pass
 
 def draw():
     pyxel.cls(0)
-
-    pyxel.text(0, 0, chars_list[char], 7)
 
 pyxel.run(update, draw)
 

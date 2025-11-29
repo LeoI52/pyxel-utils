@@ -5,6 +5,7 @@
 """
 
 from tween import Tween
+from gui import Text
 from vars import *
 import random
 import pyxel
@@ -443,8 +444,8 @@ class CutsceneAction:
 
 class Cutscene:
 
-    def __init__(self, actions:list):
-        self.actions = actions
+    def __init__(self, actions:list=None):
+        self.actions = actions or []
         self.action_index = 0
         self.active = False
         self.finished = False
@@ -532,16 +533,35 @@ def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end
 
     return CutsceneAction(duration, update, fps)
 
+def typewriter_text_action(text:Text, duration:float, fps:int=60):
+    visible_chars = [0]
+    t = text.text
+    total_chars = len(text.text) + 1
+
+    def update(action):
+        text.update()
+        progress = min(action.elapsed / duration, 1.0)
+        visible_chars[0] = min(int(total_chars * progress), len(t))
+
+    def draw(action):
+        text.text = t[:visible_chars[0]]
+        text.initialize()
+        text.draw()
+
+    return CutsceneAction(duration, update, draw, fps)
+
 #? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
+    from tween import ease_out_quint
 
     def update_1():
-
         if pyxel.btnp(pyxel.KEY_B):
             pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):
-            pm.change_scene_transition(TransitonPixelate(1, 2, 8, 1))
+            pm.change_scene_transition(TransitionDiagonal(1, 2, 1, BOTTOM_RIGHT))
+        if pyxel.btnp(pyxel.KEY_C):
+            pm.change_scene_transition(TransitionTriangle(2, 4, 1, action=lambda: cutscene.start()))
 
     def draw_1():
         pyxel.cls(10)
@@ -555,8 +575,31 @@ if __name__ == "__main__":
     def draw_2():
         pyxel.cls(3)
 
+    def update_3():
+        cutscene.update()
+
+        if cutscene.finished:
+            pm.change_scene_transition(TransitionClosingDoors(0, 4, 1))
+
+    def draw_3():
+        pyxel.cls(12)
+
+        pyxel.rect(10, 10, 50, 50, 8)
+
+        cutscene.draw()
+
     s1 = Scene(0, "Game.py Example - Scene 1", update_1, draw_1)
     s2 = Scene(1, "Game.py Example - Scene 2", update_2, draw_2)
-    pm = PyxelManager(228, 128, [s1, s2], mouse=True)
+    s3 = Scene(2, "Game.py Example - Scene 3", update_3, draw_3)
+    pm = PyxelManager(228, 128, [s1, s2, s3], mouse=True)
+
+    cutscene = Cutscene()
+    t = Text("Hello", -48, -48, 8, FONT_DEFAULT, 2, relative=False)
+
+    cutscene.add_action(wait_action(1))
+    cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
+    cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
+    cutscene.add_action(typewriter_text_action(t, 5))
+    cutscene.add_action(wait_action(0.5))
 
     pm.run()
