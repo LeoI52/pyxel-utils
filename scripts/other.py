@@ -8,6 +8,8 @@ from vars import *
 import json
 import os
 
+#? -------------------- SAVING -------------------- ?#
+
 class SavingSystem:
 
     def __init__(self):
@@ -30,6 +32,8 @@ class SavingSystem:
                     self.__data = json.load(file)
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Failed to load {filename}: {e}")
+
+#? -------------------- POSITION -------------------- ?#
 
 def get_anchored_position(x:int, y:int, width:int, height:int, anchor:int)-> tuple:
     if anchor in [TOP_RIGHT, BOTTOM_RIGHT, RIGHT]:
@@ -58,3 +62,8 @@ def get_anchored_position_y(y:int, height:int, anchor:int)-> int:
         y -= height // 2
 
     return y
+
+#? -------------------- OTHER -------------------- ?#
+
+def clamp(value:float, min_value:float, max_value:float)-> float:
+    return max(min_value, min(max_value, value))
