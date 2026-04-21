@@ -375,7 +375,6 @@ vine = Vine(points)
 
 # Static anchors
 vine.add_anchor(0, lambda: (40, 0), strength=1.0)
-vine.add_anchor(len(points) - 1, lambda: (120, 0), strength=1.0)
 
 def update():
     vine.update()

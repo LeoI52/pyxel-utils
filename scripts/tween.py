@@ -1,8 +1,10 @@
 """
 @author : Léo Imbert
 @created : 06/09/2025
-@updated : 29/11/2025
+@updated : 21/04/2026
 """
+
+#? -------------------- IMPORTATIONS -------------------- ?#
 
 import math
 

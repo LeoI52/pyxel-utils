@@ -7,6 +7,7 @@
 #? -------------------- IMPORTATIONS -------------------- ?#
 
 from tween import Tween
+# from gui import Text
 from vars import *
 import random
 import pyxel
@@ -179,7 +180,7 @@ class TransitionTriangle(Transition):
         x3, y3 = pyxel_manager.camera_x + pyxel.width / 2 + d * math.cos(math.radians(240 + self.angle)), pyxel_manager.camera_y + pyxel.height / 2 + d * math.sin(math.radians(240 + self.angle))
         pyxel.tri(x1, y1, x2, y2, x3, y3, self.transition_color)
 
-class TransitonPixelate(Transition):
+class TransitonCheckerboard(Transition):
 
     def __init__(self, new_scene_id:int, duration:float, cell_size:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         super().__init__(new_scene_id, round((pyxel.width // cell_size) * (pyxel.height // cell_size) / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
@@ -538,6 +539,23 @@ def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end
 
     return CutsceneAction(duration, update, fps)
 
+# def typewriter_text_action(text:Text, duration:float, fps:int=60):
+#     visible_chars = [0]
+#     t = text.text
+#     total_chars = len(text.text) + 1
+
+#     def update(action):
+#         text.update()
+#         progress = min(action.elapsed / duration, 1.0)
+#         visible_chars[0] = min(int(total_chars * progress), len(t))
+
+#     def draw(action):
+#         text.text = t[:visible_chars[0]]
+#         text.initialize()
+#         text.draw()
+
+#     return CutsceneAction(duration, update, draw, fps)
+
 #? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
@@ -597,10 +615,12 @@ if __name__ == "__main__":
     x, y = 20, 20
 
     cutscene = Cutscene()
+    #t = Text("Hello", -48, -48, 8, FONT_DEFAULT, 2, relative=False)
 
     cutscene.add_action(wait_action(1))
     cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
     cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
+    #cutscene.add_action(typewriter_text_action(t, 5))
     cutscene.add_action(wait_action(0.5))
 
     pm.run()
