@@ -1,22 +1,22 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 29/11/2025
+@updated : 21/04/2026
 """
 
+#? -------------------- IMPORTATIONS -------------------- ?#
+
 from tween import Tween
-from gui import Text
 from vars import *
 import random
 import pyxel
 import math
-import time
 
 #? -------------------- TRANSITIONS -------------------- ?#
 
 class Transition:
 
-    def __init__(self, new_scene_id:int, speed:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False):
+    def __init__(self, new_scene_id:int, speed:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False):
         self.new_scene_id = new_scene_id
         self.speed = speed
         self.transition_color = transition_color
@@ -24,13 +24,12 @@ class Transition:
         self.new_camera_y = new_camera_y
         self.action = action
         self.load_pyxres = load_pyxres
-        self.load_palette = load_palette
         self.direction = 1
 
 class TransitionDither(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, 1 / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
+        super().__init__(new_scene_id, 1 / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.dither = 0
 
     def update(self, pyxel_manager):
@@ -38,7 +37,7 @@ class TransitionDither(Transition):
 
         if self.dither > 1 and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.dither < 0 and self.direction == -1:
             pyxel_manager.finish_transition()
             return
@@ -46,21 +45,21 @@ class TransitionDither(Transition):
     def draw(self, pyxel_manager):
         pyxel.dither(self.dither)
         pyxel.rect(pyxel_manager.camera_x, pyxel_manager.camera_y, pyxel.width, pyxel.height, self.transition_color)
-        pyxel.dither(1)
+        pyxel.dither(1)  
 
 class TransitionCircle(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         self.radius = 0
         self.max_radius = math.hypot(pyxel.width, pyxel.height) / 2
-        super().__init__(new_scene_id, self.max_radius / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        super().__init__(new_scene_id, self.max_radius / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
 
     def update(self, pyxel_manager):
         self.radius += self.speed * self.direction
 
         if self.radius > self.max_radius and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.radius < 0 and self.direction == -1:
             pyxel_manager.finish_transition()
             return
@@ -70,8 +69,8 @@ class TransitionCircle(Transition):
 
 class TransitionClosingDoors(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, pyxel.width / (duration * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
+        super().__init__(new_scene_id, pyxel.width / (duration * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.w = 0
         self.x = pyxel.width
 
@@ -81,7 +80,7 @@ class TransitionClosingDoors(Transition):
 
         if self.w > pyxel.width // 2 and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
             self.x = pyxel.width // 2
         if self.w < 0 and self.direction == -1:
             pyxel_manager.finish_transition()
@@ -93,9 +92,9 @@ class TransitionClosingDoors(Transition):
 
 class TransitionRectangle(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         speed = pyxel.width / (duration / 2 * fps) if dir in [LEFT, RIGHT] else pyxel.height / (duration / 2 * fps)
-        super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        super().__init__(new_scene_id, speed, transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.dir = dir
         self.w = 0
         self.x = pyxel.width if dir == RIGHT else 0
@@ -109,7 +108,7 @@ class TransitionRectangle(Transition):
                 self.x = self.x - self.speed if self.dir == RIGHT else self.x + self.speed
             if self.w > pyxel.width and self.direction == 1:
                 self.direction = -1
-                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
                 self.x = 0
             if self.w < 0 and self.direction == -1:
                 pyxel_manager.finish_transition()
@@ -121,7 +120,7 @@ class TransitionRectangle(Transition):
                 self.y = self.y - self.speed if self.dir == BOTTOM else self.y + self.speed
             if self.w > pyxel.height and self.direction == 1:
                 self.direction = -1
-                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+                pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
                 self.y = 0
             if self.w < 0 and self.direction == -1:
                 pyxel_manager.finish_transition()
@@ -135,17 +134,17 @@ class TransitionRectangle(Transition):
 
 class TransitionOuterCircle(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         self.start_end = int(math.hypot(pyxel.width, pyxel.height) / 2) + 1
         self.end = self.start_end
-        super().__init__(new_scene_id, math.ceil(self.start_end / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        super().__init__(new_scene_id, math.ceil(self.start_end / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
 
     def update(self, pyxel_manager):
         self.end -= self.speed * self.direction
 
         if self.end < 0 and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.end > self.start_end and self.direction == -1:
             pyxel_manager.finish_transition()
             return
@@ -157,8 +156,8 @@ class TransitionOuterCircle(Transition):
 
 class TransitionTriangle(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, (max(pyxel.width, pyxel.height) * 2.5) / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
+        super().__init__(new_scene_id, (max(pyxel.width, pyxel.height) * 2.5) / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.size = 0
         self.angle = 270
 
@@ -168,7 +167,7 @@ class TransitionTriangle(Transition):
 
         if self.size / 2.5 > max(pyxel.width, pyxel.height) and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.size < 0 and self.direction == -1:
             pyxel_manager.finish_transition()
             return
@@ -182,8 +181,8 @@ class TransitionTriangle(Transition):
 
 class TransitonPixelate(Transition):
 
-    def __init__(self, new_scene_id:int, duration:float, cell_size:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
-        super().__init__(new_scene_id, round((pyxel.width // cell_size) * (pyxel.height // cell_size) / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+    def __init__(self, new_scene_id:int, duration:float, cell_size:int, transition_color:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
+        super().__init__(new_scene_id, round((pyxel.width // cell_size) * (pyxel.height // cell_size) / (duration / 2 * fps)), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.hidden_pixels = [(x, y) for x in range(0, pyxel.width, cell_size) for y in range(0, pyxel.height, cell_size)]
         self.visible_pixels = []
         self.cell_size = cell_size
@@ -196,7 +195,7 @@ class TransitonPixelate(Transition):
                 self.visible_pixels.append(self.hidden_pixels.pop(random.randint(0, len(self.hidden_pixels) - 1)))
         elif self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         elif len(self.visible_pixels) > 0 and self.direction == -1:
             for _ in range(self.speed):
                 if len(self.visible_pixels) <= 0:
@@ -211,9 +210,10 @@ class TransitonPixelate(Transition):
             pyxel.rect(pyxel_manager.camera_x + px, pyxel_manager.camera_y + py, self.cell_size, self.cell_size, self.transition_color)
 
 class TransitionDiagonal(Transition):
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=TOP_LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+    
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, dir:int=TOP_LEFT, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         self.max_pos = pyxel.width + pyxel.height
-        super().__init__(new_scene_id,  self.max_pos / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        super().__init__(new_scene_id,  self.max_pos / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.start = self.end = 0
         self.dir = dir
 
@@ -223,7 +223,7 @@ class TransitionDiagonal(Transition):
 
         if self.end > self.max_pos and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.start > self.max_pos and self.direction == -1:
             pyxel_manager.finish_transition()
             return
@@ -241,10 +241,10 @@ class TransitionDiagonal(Transition):
 
 class TransitionSlice(Transition):
     
-    def __init__(self, new_scene_id:int, duration:float, transition_color:int, num_slices:int=8, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False, fps:int=60):
+    def __init__(self, new_scene_id:int, duration:float, transition_color:int, num_slices:int=8, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, fps:int=60):
         self.num_slices = num_slices
         self.slice_height = pyxel.height // num_slices
-        super().__init__(new_scene_id, pyxel.width / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres, load_palette)
+        super().__init__(new_scene_id, pyxel.width / (duration / 2 * fps), transition_color, new_camera_x, new_camera_y, action, load_pyxres)
         self.position = 0
     
     def update(self, pyxel_manager):
@@ -252,7 +252,7 @@ class TransitionSlice(Transition):
         
         if self.position > pyxel.width and self.direction == 1:
             self.direction = -1
-            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres, self.load_palette)
+            pyxel_manager.change_scene(self.new_scene_id, self.new_camera_x, self.new_camera_y, self.action, self.load_pyxres)
         if self.position < 0 and self.direction == -1:
             pyxel_manager.finish_transition()
     
@@ -269,37 +269,35 @@ class TransitionSlice(Transition):
 
 class PyxelManager:
 
-    def __init__(self, width:int, height:int, scenes:list, default_scene_id:int=0, fps:int=60, fullscreen:bool=False, mouse:bool=False, quit_key:int=pyxel.KEY_ESCAPE, camera_x:int=0, camera_y:int=0, debug_background_color:int=0, debug_text_color:int=7):
+    def __init__(self, screen_size:tuple, scenes:list, default_scene_id:int=0, fps:int=60, fullscreen:bool=False, mouse:bool=False, pyxres_path:str=None, 
+                 palette:list=DEFAULT_PYXEL_COLORS, screen_mode:int=0, quit_key:int=pyxel.KEY_ESCAPE, camera_x:int=0, camera_y:int=0):
         
-        self.__scenes_dict = {scene.id:scene for scene in scenes}
+        self.__scenes_dict = {}
+        for scene in scenes:
+            if scene.pyxres_path is None:   scene.pyxres_path = pyxres_path
+            if scene.palette is None:       scene.palette = palette
+            if scene.screen_size is None:   scene.screen_size = screen_size
+            if scene.screen_mode is None:   scene.screen_mode = screen_mode
+            self.__scenes_dict[scene.id] = scene
         self.__current_scene = self.__scenes_dict[default_scene_id]
         self.__current_scene_id = default_scene_id
         self.__transition = None
 
         self.__cam_x = self.__cam_tx = camera_x
         self.__cam_y = self.__cam_ty = camera_y
+        self.__cam_tween_x = self.__cam_tween_y = Tween(0, 0, 0)
         self.__cam_interpolation = 0.1
         self.__cam_bounds = (-float("inf"), -float("inf"), float("inf"), float("inf"))
         self.__shake_amount = 0
         self.__shake_decay = 0
 
         self.__fps = fps
-        self.__previous_frame_time = time.time()
-        self.__current_fps = 0
 
-        self.debug = False
-        self.debug_background_color = debug_background_color
-        self.debug_text_color = debug_text_color
-
-        pyxel.init(width, height, fps=fps, quit_key=quit_key)
+        pyxel.init(*screen_size, fps=fps, quit_key=quit_key)
         pyxel.fullscreen(fullscreen)
         pyxel.mouse(mouse)
 
-        if self.__current_scene.pyxres_path:
-            pyxel.load(self.__current_scene.pyxres_path)
-        pyxel.colors.from_list(self.__current_scene.palette)
-        pyxel.title(self.__current_scene.title)
-        pyxel.screen_mode(self.__current_scene.screen_mode)
+        self.load_current_scene()
 
     @property
     def camera_x(self)-> int|float:
@@ -330,6 +328,13 @@ class PyxelManager:
         self.__cam_ty = max(self.__cam_bounds[1], min(new_camera_y, self.__cam_bounds[3] - pyxel.height))
         self.__cam_interpolation = interpolation
 
+    def move_camera_tween(self, new_camera_x:int, new_camera_y:int, duration:float, easing_function):
+        if not self.__cam_tween_x.active and not self.__cam_tween_y.active:
+            tx = max(self.__cam_bounds[0], min(new_camera_x, self.__cam_bounds[2] - pyxel.width))
+            ty = max(self.__cam_bounds[1], min(new_camera_y, self.__cam_bounds[3] - pyxel.height))
+            self.__cam_tween_x = Tween(self.__cam_x, tx, duration, True, easing_function, self.__fps)
+            self.__cam_tween_y = Tween(self.__cam_y, ty, duration, True, easing_function, self.__fps)
+
     def set_camera_bounds(self, min_x:int, min_y:int, max_x:int, max_y:int):
         self.__cam_bounds = (min_x, min_y, max_x, max_y)
         self.__cam_tx = max(self.__cam_bounds[0], min(self.__cam_tx, self.__cam_bounds[2] - pyxel.width))
@@ -341,7 +346,16 @@ class PyxelManager:
         self.__shake_amount = amount
         self.__shake_decay = decay
 
-    def change_scene(self, new_scene_id:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False, load_palette:bool=False):
+    def load_current_scene(self, load_pyxres:bool=True):
+        pyxel.resize(*self.__current_scene.screen_size)
+        if self.__current_scene.pyxres_path and load_pyxres:
+            pyxel.load(self.__current_scene.pyxres_path)
+        pyxel.colors.clear()
+        pyxel.colors.extend(self.__current_scene.palette)
+        pyxel.title(self.__current_scene.title)
+        pyxel.screen_mode(self.__current_scene.screen_mode)
+
+    def change_scene(self, new_scene_id:int, new_camera_x:int=0, new_camera_y:int=0, action=None, load_pyxres:bool=False):
         self.set_camera(new_camera_x, new_camera_y)
 
         self.__current_scene = self.__scenes_dict[new_scene_id]
@@ -349,12 +363,7 @@ class PyxelManager:
         if action:
             action()
 
-        if self.__current_scene.pyxres_path and load_pyxres:
-            pyxel.load(self.__current_scene.pyxres_path)
-        if load_palette:
-            pyxel.colors.from_list(self.__current_scene.palette)
-        pyxel.title(self.__current_scene.title)
-        pyxel.screen_mode(self.__current_scene.screen_mode)
+        self.load_current_scene(load_pyxres)
 
     def change_scene_transition(self, transition:Transition):
         self.__transition = transition
@@ -362,18 +371,24 @@ class PyxelManager:
     def finish_transition(self):
         self.__transition = None
 
-    def apply_palette_effect(self, effect_function, **kwargs):
-        pyxel.colors.from_list(effect_function(self.__current_scene.palette, kwargs))
+    def apply_palette_effect(self, effect_function):
+        pyxel.colors.clear()
+        pyxel.colors.extend(effect_function(self.__current_scene.palette))
 
     def reset_palette(self):
-        pyxel.colors.from_list(self.__current_scene.palette)
+        pyxel.colors.clear()
+        pyxel.colors.extend(self.__current_scene.palette)
 
     def update(self):
         if self.__transition:
             self.__transition.update(self)
 
-        self.__cam_x += (self.__cam_tx - self.__cam_x) * self.__cam_interpolation
-        self.__cam_y += (self.__cam_ty - self.__cam_y) * self.__cam_interpolation
+        if self.__cam_tween_x.active or self.__cam_tween_y.active:
+            self.__cam_x = self.__cam_tx = self.__cam_tween_x.update()
+            self.__cam_y = self.__cam_ty = self.__cam_tween_y.update()
+        else:
+            self.__cam_x += (self.__cam_tx - self.__cam_x) * self.__cam_interpolation
+            self.__cam_y += (self.__cam_ty - self.__cam_y) * self.__cam_interpolation
 
         if self.__shake_amount > 0:
             a = self.__shake_amount
@@ -390,29 +405,19 @@ class PyxelManager:
         if self.__transition:
             self.__transition.draw(self)
 
-        if self.debug:
-            pyxel.rect(self.__cam_x + 1, self.__cam_y + 1, 66, 27, self.debug_background_color)
-            pyxel.text(self.__cam_x + 3, self.__cam_y + 3, f"Scene[{self.__current_scene.id}]", self.debug_text_color)
-            pyxel.text(self.__cam_x + 3, self.__cam_y + 9, f"Screen[{pyxel.mouse_x},{pyxel.mouse_y}]", self.debug_text_color)
-            pyxel.text(self.__cam_x + 3, self.__cam_y + 15, f"World[{self.mouse_x:.0f},{self.mouse_y:.0f}]", self.debug_text_color)
-            pyxel.text(self.__cam_x + 3, self.__cam_y + 21, f"Fps[{self.__current_fps:.0f}]", self.debug_text_color)
-
-        if pyxel.frame_count % self.__fps == 0:
-            self.__current_fps = 1 / (time.time() - self.__previous_frame_time)
-        self.__previous_frame_time = time.time()
-
     def run(self):
         pyxel.run(self.update, self.draw)
 
 class Scene:
 
-    def __init__(self, id:int, title:str, update, draw, pyxres_path:str=None, palette:list=DEFAULT_PYXEL_COLORS, screen_mode:int=0):
+    def __init__(self, id:int|float, title:str, update, draw, *, pyxres_path:str=None, palette:list=None, screen_size:tuple=None, screen_mode:int=None):
         self.id = id
         self.title = title
         self.update = update
         self.draw = draw
         self.pyxres_path = pyxres_path
         self.palette = palette
+        self.screen_size = screen_size
         self.screen_mode = screen_mode
 
 #? -------------------- CUTSCENES -------------------- ?#
@@ -533,31 +538,12 @@ def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end
 
     return CutsceneAction(duration, update, fps)
 
-def typewriter_text_action(text:Text, duration:float, fps:int=60):
-    visible_chars = [0]
-    t = text.text
-    total_chars = len(text.text) + 1
-
-    def update(action):
-        text.update()
-        progress = min(action.elapsed / duration, 1.0)
-        visible_chars[0] = min(int(total_chars * progress), len(t))
-
-    def draw(action):
-        text.text = t[:visible_chars[0]]
-        text.initialize()
-        text.draw()
-
-    return CutsceneAction(duration, update, draw, fps)
-
 #? -------------------- EXAMPLE -------------------- ?#
 
 if __name__ == "__main__":
-    from tween import ease_out_quint
+    from tween import ease_out_quint, ease_in_out_bounce
 
     def update_1():
-        if pyxel.btnp(pyxel.KEY_B):
-            pm.debug = not pm.debug
         if pyxel.btnp(pyxel.KEY_SPACE):
             pm.change_scene_transition(TransitionDiagonal(1, 2, 1, BOTTOM_RIGHT))
         if pyxel.btnp(pyxel.KEY_C):
@@ -567,13 +553,28 @@ if __name__ == "__main__":
         pyxel.cls(10)
 
     def update_2():
-        if pyxel.btnp(pyxel.KEY_B):
-            pm.debug = not pm.debug
+        global x, y
+
         if pyxel.btnp(pyxel.KEY_SPACE):
             pm.change_scene_transition(TransitionTriangle(0, 1, 1))
+        if pyxel.btnp(pyxel.KEY_A):
+            pm.move_camera_tween(-114 + 25, -64 + 25, 3, ease_in_out_bounce)
+
+        if pyxel.btn(pyxel.KEY_LEFT):
+            x -= 1
+        if pyxel.btn(pyxel.KEY_RIGHT):
+            x += 1
+        if pyxel.btn(pyxel.KEY_UP):
+            y -= 1
+        if pyxel.btn(pyxel.KEY_DOWN):
+            y += 1
+
+        pm.move_camera(x - 104, y - 54)
 
     def draw_2():
         pyxel.cls(3)
+        pyxel.rect(x, y, 20, 20, 8)
+        pyxel.rect(0, 0, 50, 50, 10)
 
     def update_3():
         cutscene.update()
@@ -591,15 +592,15 @@ if __name__ == "__main__":
     s1 = Scene(0, "Game.py Example - Scene 1", update_1, draw_1)
     s2 = Scene(1, "Game.py Example - Scene 2", update_2, draw_2)
     s3 = Scene(2, "Game.py Example - Scene 3", update_3, draw_3)
-    pm = PyxelManager(228, 128, [s1, s2, s3], mouse=True)
+    pm = PyxelManager((228, 128), [s1, s2, s3], mouse=True)
+
+    x, y = 20, 20
 
     cutscene = Cutscene()
-    t = Text("Hello", -48, -48, 8, FONT_DEFAULT, 2, relative=False)
 
     cutscene.add_action(wait_action(1))
     cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
     cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
-    cutscene.add_action(typewriter_text_action(t, 5))
     cutscene.add_action(wait_action(0.5))
 
     pm.run()

@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 28/09/2025
-@updated : 18/11/2025
+@updated : 16/01/2026
 """
 
 #? ---------- IMPORTATIONS ---------- ?#
@@ -14,7 +14,7 @@ import os
 
 DEFAULT_PYXEL_COLORS = [0x000000, 0x2B335F, 0x7E2072, 0x19959C, 0x8B4852, 0x395C98, 0xA9C1FF, 0xEEEEEE, 0xD4186C, 0xD38441, 0xE9C35B, 0x70C6A9, 0x7696DE, 0xA3A3A3, 0xFF9798, 0xEDC7B0]
 
-MOUSE = [[0,2],[2,1,2],[2,1,1,2],[2,1,1,1,2],[2,1,1,1,1,2],[2,1,1,2,2],[0,2,2,1,2]]
+MOUSE_ICON = [[0,2],[2,1,2],[2,1,1,2],[2,1,1,1,2],[2,1,1,1,1,2],[2,1,1,2,2],[0,2,2,1,2]]
 
 EMPTY_ICON = [
     [1]*16,
@@ -34,27 +34,23 @@ EMPTY_ICON = [
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1]*16]
 
-HOME_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,1,1,0,0,0,0,0,0,2],[2,0,0,0,0,0,1,1,1,1,0,0,0,0,0,2],[2,0,0,0,0,1,1,1,1,1,1,0,0,0,0,2],[2,0,0,0,1,1,1,2,2,1,1,1,0,0,0,2],[2,0,0,1,1,1,2,2,2,2,1,1,1,0,0,2],[2,0,1,1,1,2,2,2,2,2,2,1,1,1,0,2],[2,0,1,1,2,2,2,2,2,2,2,2,1,1,0,2],[2,0,0,2,2,2,2,0,0,2,2,2,2,0,0,2],[2,0,0,2,2,2,2,0,0,2,2,2,2,0,0,2],[2,0,0,2,2,2,2,0,0,2,2,2,2,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-SPRITE_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,1,1,1,1,1,1,0,0,0,0,2],[2,0,0,1,1,1,1,1,1,1,1,1,1,0,0,2],[2,0,0,1,1,1,1,1,1,1,1,1,1,0,0,2],[2,0,0,0,0,2,2,2,2,2,2,0,0,0,0,2],[2,0,0,0,0,2,2,2,2,2,2,0,0,0,0,2],[2,0,0,0,2,2,2,2,2,2,2,2,0,0,0,2],[2,0,2,2,2,2,2,2,2,2,2,2,2,2,0,2],[2,0,2,2,0,2,2,2,2,2,2,0,2,2,0,2],[2,0,0,0,0,2,2,2,2,2,2,0,0,0,0,2],[2,0,0,0,0,2,2,2,2,2,2,0,0,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-TILEMAP_ICON = [[2]*16,[2]+[0]*14+[2],[2]+[0]*14+[2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,1,0,0,1,0,0,1,0,0,1,0,0,2],[2,0,0,1,0,0,1,0,0,1,0,0,1,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,1,0,0,1,0,0,1,0,0,1,0,0,2],[2,0,0,1,0,0,1,0,0,1,0,0,1,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2]+[0]*14+[2],[2]+[0]*14+[2],[2]*16]
-PYXRES_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,1,1,0,0,0,0,0,0,2],[2,0,0,0,1,1,0,1,1,0,1,1,0,0,0,2],[2,0,0,0,1,1,1,1,1,1,1,1,0,0,0,2],[2,0,0,0,0,1,1,1,1,1,1,0,0,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,1,1,1,1,0,0,1,1,1,1,0,0,2],[2,0,0,0,0,1,1,1,1,1,1,0,0,0,0,2],[2,0,0,0,1,1,1,1,1,1,1,1,0,0,0,2],[2,0,0,0,1,1,0,1,1,0,1,1,0,0,0,2],[2,0,0,0,0,0,0,1,1,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-AUTOTILE_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,2,0,0,0,0,0,0,0,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,1,1,1,1,1,1,0,2,0,0,2],[2,0,0,2,0,0,0,0,0,0,0,0,2,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-ANIMATION_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,1,1,0,0,0,1,1,0,0,0,0,2],[2,0,0,1,0,0,1,0,1,0,0,1,0,0,0,2],[2,0,0,1,0,0,1,0,1,0,0,1,0,0,0,2],[2,0,0,0,1,1,0,0,0,1,1,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,1,1,1,1,1,1,1,1,1,0,0,0,2],[2,0,1,1,2,2,2,2,2,2,2,1,0,1,0,2],[2,0,1,2,2,2,2,2,2,2,2,1,1,1,0,2],[2,0,1,2,2,2,2,2,2,2,2,2,2,1,0,2],[2,0,1,2,2,2,2,2,2,2,2,1,1,1,0,2],[2,0,1,1,2,2,2,2,2,2,2,1,0,1,0,2],[2,0,0,1,1,1,1,1,1,1,1,1,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-RANDOM_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,2,1,1,2,2,2,2,1,1,2,0,0,2],[2,0,0,2,1,1,2,2,2,2,1,1,2,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,2,2,2,2,1,1,2,2,2,2,0,0,2],[2,0,0,2,2,2,2,1,1,2,2,2,2,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,2,1,1,2,2,2,2,1,1,2,0,0,2],[2,0,0,2,1,1,2,2,2,2,1,1,2,0,0,2],[2,0,0,2,2,2,2,2,2,2,2,2,2,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-PALETTE_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,2,2,2,2,2,2,0,0,0,0,2],[2,0,0,0,2,2,2,2,2,2,2,2,0,0,0,2],[2,0,0,2,2,2,2,1,1,2,2,2,2,0,0,2],[2,0,2,2,2,2,2,1,1,2,1,1,2,2,0,2],[2,0,2,2,2,2,2,2,2,2,1,1,2,2,0,2],[2,0,2,2,1,1,2,2,2,2,2,2,2,2,0,2],[2,0,2,2,1,1,2,2,2,2,2,2,2,2,0,2],[2,0,2,2,2,2,2,2,2,0,0,2,2,0,0,2],[2,0,2,2,2,1,1,2,2,0,0,0,0,0,0,2],[2,0,0,2,2,1,1,2,2,2,0,0,0,0,0,2],[2,0,0,0,2,2,2,2,2,2,0,0,0,0,0,2],[2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-SOUND_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,2,1,2,0,0,0,0,2],[2,0,0,0,0,0,0,2,1,1,2,0,2,0,0,2],[2,0,0,0,0,0,2,1,1,1,2,0,0,2,0,2],[2,0,0,2,2,2,1,1,1,1,2,0,0,2,0,2],[2,0,2,1,1,2,1,1,1,1,2,0,0,2,0,2],[2,0,2,1,1,2,1,1,1,1,2,0,0,2,0,2],[2,0,0,2,2,2,1,1,1,1,2,0,0,2,0,2],[2,0,0,0,0,0,2,1,1,1,2,0,0,2,0,2],[2,0,0,0,0,0,0,2,1,1,2,0,2,0,0,2],[2,0,0,0,0,0,0,0,2,1,2,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,2,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
-MUSIC_ICON = [[2]*16,[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,2,2,2,2,2,2,2,0,0,2],[2,0,0,0,0,2,1,1,1,1,1,1,1,2,0,2],[2,0,0,0,0,2,1,2,2,2,2,2,1,2,0,2],[2,0,0,0,0,2,1,2,0,0,0,2,1,2,0,2],[2,0,0,0,2,2,1,2,0,0,2,2,1,2,0,2],[2,0,0,2,1,1,1,2,0,2,1,1,1,2,0,2],[2,0,0,2,1,1,1,2,0,2,1,1,1,2,0,2],[2,0,0,2,1,1,2,0,0,2,1,1,2,0,0,2],[2,0,0,0,2,2,0,0,0,0,2,2,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],[2]*16]
+HOME_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+SPRITE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+TILEMAP_ICON = [[1]*16,[1]+[0]*14+[1],[1]+[0]*14+[1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1]+[0]*14+[1],[1]+[0]*14+[1],[1]*16]
+PYXRES_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,0,0,1,1,0,1,1,0,1,1,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,0,1,1,0,1,1,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+AUTOTILE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+ANIMATION_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1],[1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,1,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+RANDOM_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+PALETTE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,1,1,1,1,1,0,0,1,1,0,0,1],[1,0,1,1,1,1,1,1,1,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,0,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+SOUND_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1],[1,0,0,0,0,0,0,1,1,1,1,0,1,0,0,1],[1,0,0,0,0,0,1,1,1,1,1,0,0,1,0,1],[1,0,0,1,1,1,1,1,1,1,1,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,0,1,0,1],[1,0,1,1,1,1,1,1,1,1,1,0,0,1,0,1],[1,0,0,1,1,1,1,1,1,1,1,0,0,1,0,1],[1,0,0,0,0,0,1,1,1,1,1,0,0,1,0,1],[1,0,0,0,0,0,0,1,1,1,1,0,1,0,0,1],[1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
+MUSIC_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,1,1,1,1,1,1,1,1,1,0,1],[1,0,0,0,0,1,1,1,0,0,0,1,1,1,0,1],[1,0,0,0,1,1,1,1,0,0,1,1,1,1,0,1],[1,0,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,0,1,1,1,1,1,0,1,1,1,1,1,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 
-HOME = 0
-SPRITE_EDITOR = 1
-TILEMAP_EDITOR = 2
-PYXRES_EDITOR = 3
-AUTOTILE_EDITOR = 4
-ANIMATION_EDITOR = 5
-RANDOM_EDITOR = 6
-PALETTE_EDITOR = 7
-SOUND_EDITOR = 8
-MUSIC_EDITOR = 9
+SPRITE_EDITOR = 0
+TILEMAP_EDITOR = 1
+AUTOTILE_EDITOR = 2
+ANIMATION_EDITOR = 3
+SOUND_EDITOR = 4
+MUSIC_EDITOR = 5
 
 SELECT_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 PEN_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],[1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
@@ -91,7 +87,7 @@ TOOLS_SHORTCUTS = {
 
 #? ---------- SPRITE CONSTANTS ---------- ?#
 
-EDITOR_X, EDITOR_Y, EDITOR_SIZE = 16, 16, 128
+EDITOR_X, EDITOR_Y, EDITOR_SIZE = 25, 16, 128
 COLOR_PICKER_X, COLOR_PICKER_Y = EDITOR_X + EDITOR_SIZE + 16, EDITOR_Y + EDITOR_SIZE - 40
 ZOOMS = [8, 16, 32, 64, 128]
 
@@ -108,7 +104,7 @@ NEXT_ICON = [[2,2,2,2,2,2,2,2],[2,0,0,2,0,0,0,2],[2,0,0,0,2,0,0,2],[2,0,2,0,0,2,
 
 #? ---------- SOUND CONSTANTS ---------- ?#
 
-SOUND_EDITOR_X, SOUND_EDITOR_Y, SOUND_EDITOR_W, SOUND_EDITOR_H = 16, 16, 128, 120
+SOUND_EDITOR_X, SOUND_EDITOR_Y, SOUND_EDITOR_W, SOUND_EDITOR_H = 25, 16, 128, 120
 RESET_ICON = [[2,2,2,2,2,2,2,2],[2,0,0,2,0,0,0,2],[2,0,2,2,2,2,0,2],[2,0,0,2,0,0,2,2],[2,0,0,0,0,0,2,2],[2,0,2,0,0,2,0,2],[2,0,0,2,2,0,0,2],[2,2,2,2,2,2,2,2]]
 SOUND_DICT = {
     0: 'b4', 1: 'b-4', 2: 'a4', 3: 'a-4', 4: 'g4', 5: 'g-4', 6: 'f4', 7: 'e4', 8: 'e-4', 9: 'd4', 10: 'd-4', 11: 'c4',
@@ -119,10 +115,6 @@ SOUND_DICT = {
     None:'r',
 }
 
-#? ---------- UTILITY FUNCTIONS ---------- ?#
-
-def collision_point_rect(x1:int, y1:int, x2:int, y2:int, w2:int, h2:int)-> bool:
-    return x2 <= x1 < x2 + w2 and y2 <= y1 < y2 + h2
 
 #? ---------- UTILITY CLASSES ---------- ?#
 
@@ -148,30 +140,26 @@ class ColorButton:
 
 class IconButton:
 
-    def __init__(self, x:int, y:int, id:int, icon:list, colors_len:int, selection:bool=False):
+    def __init__(self, x:int, y:int, id:int, icon:list, colors_len:int):
         self.x, self.y = x, y
         self.w, self.h = len(icon[0]), len(icon)
         self.id = id
         self.icon = icon
         self.colors_len = colors_len
-        self.selection = selection
         self.selected = False
 
     def update(self, current_id:int=0):
         if collision_point_rect(pyxel.mouse_x, pyxel.mouse_y, self.x, self.y, self.w, self.h) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             return self.id
         
-        if self.selection:
-            self.selected = current_id == self.id
+        self.selected = current_id == self.id
         return None
 
     def draw(self):
         for y in range(len(self.icon)):
             for x in range(len(self.icon[y])):
                 c = self.icon[y][x]
-                if c and not self.selection:
-                    pyxel.rect(self.x + x, self.y + y, 1, 1, self.colors_len + c)
-                elif c:
+                if c:
                     c = self.colors_len + 1 if self.selected else self.colors_len + 2
                     pyxel.rect(self.x + x, self.y + y, 1, 1, c)
 
@@ -316,6 +304,9 @@ class Entry:
                 if pyxel.btnp(key):
                     if len(self.text) < self.max_length:
                         self.text += chr(ord('0') + (key - pyxel.KEY_0))
+            
+            if pyxel.btnp(pyxel.KEY_COLON) and len(self.text) < self.max_length:
+                self.text += "/"
 
             if pyxel.btnp(pyxel.KEY_COMMA) and len(self.text) < self.max_length:
                 self.text += ","
@@ -344,6 +335,11 @@ class Entry:
         if self.active and self.cursor_visible:
             cursor_x = entry_x + 2 + len(self.text) * 4
             pyxel.line(cursor_x, self.y + 1, cursor_x, self.y + 6, self.colors_len + 1)
+
+#? ---------- UTILITY FUNCTIONS ---------- ?#
+
+def collision_point_rect(x1:int, y1:int, x2:int, y2:int, w2:int, h2:int)-> bool:
+    return x2 <= x1 < x2 + w2 and y2 <= y1 < y2 + h2
 
 #? ---------- CLASSES ---------- ?#
 
@@ -380,45 +376,38 @@ class SoundEffect:
 
 class Editor:
 
-    def __init__(self, color_palette:list, fullscreen:bool=True):
+    def __init__(self, color_palette:list, filename:str="assets.pyxres", fullscreen:bool=True):
         #? Pyxel Init
         pyxel.init(258, 160, title="Editor", fps=60, quit_key=pyxel.KEY_NONE)
         pyxel.fullscreen(fullscreen)
-        pyxel.colors.from_list(color_palette + [0x2B335F, 0xEEEEEE, 0x29ADFF])
-        
+        pyxel.colors.from_list(color_palette + [0x2B335F, 0xEEEEEE, 0x4A90E2])
+
         #? Pyxres Config
-        self.load("assets.pyxres")
+        self.load(filename)
 
         #? CONSTANTS
         self.COLORS_LEN = len(color_palette)
 
         #? Main Variables
-        self.current_tab = HOME
-        self.home_button = IconButton(0, 0, HOME, HOME_ICON, self.COLORS_LEN)
+        self.current_tab = SPRITE_EDITOR
         self.current_tool = SELECT_TOOL
-        self.tool_buttons = [IconButton(160, 16, SELECT_TOOL, SELECT_ICON, self.COLORS_LEN, True),
-                             IconButton(176, 16, PEN_TOOL, PEN_ICON, self.COLORS_LEN, True),
-                             IconButton(192, 16, MIRROR_TOOL, MIRROR_ICON, self.COLORS_LEN, True),
-                             IconButton(208, 16, LINE_TOOL, LINE_ICON, self.COLORS_LEN, True),
-                             IconButton(160, 32, FILLED_RECT_TOOL, FILLED_RECT_ICON, self.COLORS_LEN, True),
-                             IconButton(176, 32, RECT_TOOL, RECT_ICON, self.COLORS_LEN, True),
-                             IconButton(192, 32, FILLED_ELLI_TOOL, FILLED_ELLI_ICON, self.COLORS_LEN, True),
-                             IconButton(208, 32, ELLI_TOOL, ELLI_ICON, self.COLORS_LEN, True),
-                             IconButton(160, 48, BUCKET_TOOL, BUCKET_ICON, self.COLORS_LEN, True),
-                             IconButton(176, 48, SWAP_TOOL, SWAP_ICON, self.COLORS_LEN, True)]
-
-        #? Home Variables
-        self.h_clicked = False
-        self.h_buttons = [IconButton(16, 70, SPRITE_EDITOR, SPRITE_ICON, self.COLORS_LEN),
-                          IconButton(16, 102, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),
-                          IconButton(16, 38, PYXRES_EDITOR, PYXRES_ICON, self.COLORS_LEN),
-                          IconButton(52, 102, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN),
-                          IconButton(34, 70, ANIMATION_EDITOR, ANIMATION_ICON, self.COLORS_LEN),
-                          IconButton(34, 102, RANDOM_EDITOR, RANDOM_ICON, self.COLORS_LEN),
-                          IconButton(34, 38, PALETTE_EDITOR, PALETTE_ICON, self.COLORS_LEN),
-                          IconButton(16, 134, SOUND_EDITOR, SOUND_ICON, self.COLORS_LEN),
-                          IconButton(34, 134, MUSIC_EDITOR, MUSIC_ICON, self.COLORS_LEN)]
-
+        self.tab_buttons = [IconButton(0, 16, SPRITE_EDITOR, SPRITE_ICON, self.COLORS_LEN),
+                          IconButton(0, 32, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),
+                          IconButton(0, 48, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN),
+                          IconButton(0, 64, ANIMATION_EDITOR, ANIMATION_ICON, self.COLORS_LEN),
+                          IconButton(0, 80, SOUND_EDITOR, SOUND_ICON, self.COLORS_LEN),
+                          IconButton(0, 96, MUSIC_EDITOR, MUSIC_ICON, self.COLORS_LEN)]
+        self.tool_buttons = [IconButton(169, 16, SELECT_TOOL, SELECT_ICON, self.COLORS_LEN),
+                             IconButton(185, 16, PEN_TOOL, PEN_ICON, self.COLORS_LEN),
+                             IconButton(201, 16, MIRROR_TOOL, MIRROR_ICON, self.COLORS_LEN),
+                             IconButton(217, 16, LINE_TOOL, LINE_ICON, self.COLORS_LEN),
+                             IconButton(169, 32, FILLED_RECT_TOOL, FILLED_RECT_ICON, self.COLORS_LEN),
+                             IconButton(185, 32, RECT_TOOL, RECT_ICON, self.COLORS_LEN),
+                             IconButton(201, 32, FILLED_ELLI_TOOL, FILLED_ELLI_ICON, self.COLORS_LEN),
+                             IconButton(217, 32, ELLI_TOOL, ELLI_ICON, self.COLORS_LEN),
+                             IconButton(169, 48, BUCKET_TOOL, BUCKET_ICON, self.COLORS_LEN),
+                             IconButton(185, 48, SWAP_TOOL, SWAP_ICON, self.COLORS_LEN)]
+        
         #? Sprite Variables
         self.s_color = 0
         self.s_grid = False
@@ -429,9 +418,9 @@ class Editor:
         self.s_tile_size = EDITOR_SIZE // 16
         self.s_offset_x = self.s_offset_y = 0
         self.s_color_buttons = self.place_s_color_buttons()
-        self.s_zoom_selector = Selector(92, 148, "Zoom:", ZOOMS[::-1], self.COLORS_LEN, 3)
-        self.s_grid_selector = Selector(80, 4, "Grid size:", [1, 2, 4, 8], self.COLORS_LEN, 3)
-        self.s_image_selector = Selector(16, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
+        self.s_zoom_selector = Selector(101, 148, "Zoom:", ZOOMS[::-1], self.COLORS_LEN, 3)
+        self.s_grid_selector = Selector(89, 4, "Grid size:", [1, 2, 4, 8, 16], self.COLORS_LEN, 3)
+        self.s_image_selector = Selector(25, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
 
         #? Tilemap Variables
         self.t_grid = False
@@ -442,21 +431,15 @@ class Editor:
         self.t_tile_selected = (0, 0)
         self.t_tile_offset_x = self.t_tile_offset_y = 0
         self.t_tilemap_offset_x = self.t_tilemap_offset_y = 0
-        self.t_grid_selector = Selector(80, 4, "Grid size:", [1, 2, 4, 8], self.COLORS_LEN, 3)
-        self.t_tilemap_selector = Selector(16, 148, "Tilemap:", [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
-        self.t_layer_selector = Selector(84, 148, "Layer:", ["None"] + [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
-        self.t_image_selector = Selector(160, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN, pyxel.tilemaps[0].imgsrc)
-
-        #? Pyxres Editor Variables
-        self.p_file_entry = Entry(16, 30, "Pyxres file :", self.COLORS_LEN, 20, "assets")
-        self.p_image_selector = Selector(16, 40, "Number Images :", [x for x in range(1, 11)], self.COLORS_LEN, self.NUMBER_IMAGES - 1)
-        self.p_tilemap_selector = Selector(16, 50, "Number Tilemaps :", [x for x in range(1, 11)], self.COLORS_LEN, self.NUMBER_TILEMAPS - 1)
+        self.t_grid_selector = Selector(89, 4, "Grid size:", [1, 2, 4, 8], self.COLORS_LEN, 3)
+        self.t_tilemap_selector = Selector(25, 148, "Tilemap:", [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
+        self.t_layer_selector = Selector(93, 148, "Layer:", ["None"] + [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
+        self.t_image_selector = Selector(169, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN, pyxel.tilemaps[0].imgsrc)
 
         #? Autotile Editor Variables
         self.a_tiles_y = {x:[] for x in range(self.NUMBER_IMAGES)}
         self.a_buttons = {x:self.place_a_buttons() for x in range(self.NUMBER_IMAGES)}
         self.a_image_selector = Selector(20, 2, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
-        self.select_a_buttons(self.data["a_buttons"])
 
         #? Animation Editor Variables
         self.n_frame = 0
@@ -475,13 +458,13 @@ class Editor:
 
         #? Sound Editor Variables
         self.so_sounds = [SoundEffect() for _ in range(100)]
-        self.so_play_button = IconButton(116, 4, 1, PLAY_ICON, self.COLORS_LEN)
-        self.so_reset_button = IconButton(126, 4, 1, RESET_ICON, self.COLORS_LEN)
-        self.so_tone_selector = Selector(148, 26, "Tone:", ["T", "S", "P", "N"], self.COLORS_LEN)
-        self.so_sound_selector = Selector(18, 4, "Sound:", [x for x in range(100)], self.COLORS_LEN)
-        self.so_speed_selector = Selector(148, 16, "Speed:", [x for x in range(1, 31)], self.COLORS_LEN)
-        self.so_volume_selector = Selector(148, 46, "Volume:", [str(x) for x in range(8)], self.COLORS_LEN, 7)
-        self.so_effect_selector = Selector(148, 36, "Effect:", ["N", "S", "V", "F", "H", "Q"], self.COLORS_LEN)
+        self.so_play_button = IconButton(125, 4, 1, PLAY_ICON, self.COLORS_LEN)
+        self.so_reset_button = IconButton(135, 4, 1, RESET_ICON, self.COLORS_LEN)
+        self.so_tone_selector = Selector(157, 26, "Tone:", ["T", "S", "P", "N"], self.COLORS_LEN)
+        self.so_sound_selector = Selector(27, 4, "Sound:", [x for x in range(100)], self.COLORS_LEN)
+        self.so_speed_selector = Selector(157, 16, "Speed:", [x for x in range(1, 31)], self.COLORS_LEN)
+        self.so_volume_selector = Selector(157, 46, "Volume:", [str(x) for x in range(8)], self.COLORS_LEN, 7)
+        self.so_effect_selector = Selector(157, 36, "Effect:", ["N", "S", "V", "F", "H", "Q"], self.COLORS_LEN)
 
         #? Load Sound Editor
         for i in range(100):
@@ -491,7 +474,13 @@ class Editor:
         self.so_effect_selector.value = self.so_sounds[0].effect
         self.so_volume_selector.value = self.so_sounds[0].volume
 
-
+        #? Music Editor Variables
+        self.m_import_entry = Entry(27, 32, "Import:", self.COLORS_LEN, 20)
+        self.m_play_button = IconButton(125, 4, 1, PLAY_ICON, self.COLORS_LEN)
+        self.m_reset_button = IconButton(135, 4, 1, RESET_ICON, self.COLORS_LEN)
+        self.m_import_button = IconButton(148, 32, 1, NEXT_ICON, self.COLORS_LEN)
+        self.m_music_selector = Selector(27, 4, "Music:", [x for x in range((self.NUMBER_SOUNDS - 100) // 4)], self.COLORS_LEN)
+        
         #? Pyxel Run
         pyxel.run(self.update, self.draw)
 
@@ -501,9 +490,9 @@ class Editor:
         if os.path.isfile(pyxres_path):
             pyxel.load(pyxres_path)
             sound_list  = pyxel.sounds.to_list()
-            if len(sound_list) < 120:
-                pyxel.sounds.from_list(sound_list + [pyxel.Sound() for _ in range(120 - len(sound_list))])
-                for i in range(len(sound_list), 120):
+            if len(sound_list) < 100:
+                pyxel.sounds.from_list(sound_list + [pyxel.Sound() for _ in range(100 - len(sound_list))])
+                for i in range(len(sound_list), 100):
                     pyxel.sounds[i].set_tones("T")
                     pyxel.sounds[i].set_volumes("7")
                     pyxel.sounds[i].set_effects("N")
@@ -511,71 +500,23 @@ class Editor:
         else:
             pyxel.images.from_list([pyxel.Image(256, 256) for _ in range(2)])
             pyxel.tilemaps.from_list([pyxel.Tilemap(256, 256, 0) for _ in range(5)])
-            pyxel.sounds.from_list([pyxel.Sound() for _ in range(120)])
-            for i in range(120):
+            pyxel.sounds.from_list([pyxel.Sound() for _ in range(140)])
+            for i in range(100):
                 pyxel.sounds[i].set_tones("T")
                 pyxel.sounds[i].set_volumes("7")
                 pyxel.sounds[i].set_effects("N")
                 pyxel.sounds[i].speed = 1
 
         self.PYXRES_PATH = pyxres_path
-        self.JSON_PATH = pyxres_path[:-7] + ".json"
         self.NUMBER_IMAGES = len(pyxel.images.to_list())
         self.NUMBER_TILEMAPS = len(pyxel.tilemaps.to_list())
-
-        if os.path.isfile(self.JSON_PATH):
-            with open(self.JSON_PATH, "r") as file:
-                self.data = json.load(file)
-        else:
-            self.data = {"a_buttons":[]}
+        self.NUMBER_SOUNDS = len(pyxel.sounds.to_list())
 
     def save(self):
         for i, sound in enumerate(self.so_sounds):
             sound.save(i)
 
         pyxel.save(self.PYXRES_PATH)
-
-        self.data = {"a_buttons":[]}
-        for image, buttons in self.a_buttons.items():
-            for i in range(len(buttons)):
-                if self.a_buttons[image][i].selected:
-                    self.data["a_buttons"].append((image, i))
-
-        with open(self.JSON_PATH, "w") as file:
-            json.dump(self.data, file, indent=4)
-
-    def load_widgets(self):
-        self.s_image_selector = Selector(16, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
-        self.t_tilemap_selector = Selector(16, 148, "Tilemap:", [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
-        self.t_layer_selector = Selector(84, 148, "Layer:", ["None"] + [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
-        self.t_image_selector = Selector(160, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN, pyxel.tilemaps[0].imgsrc)
-        self.a_tiles_y = {x:[] for x in range(self.NUMBER_IMAGES)}
-        self.a_buttons = {x:self.place_a_buttons() for x in range(self.NUMBER_IMAGES)}
-        self.a_image_selector = Selector(20, 2, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
-        self.select_a_buttons(self.data["a_buttons"])
-        self.n_image_selector = Selector(160, 16, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
-        self.p_image_selector = Selector(16, 40, "Number Images :", [x for x in range(1, 11)], self.COLORS_LEN, self.NUMBER_IMAGES - 1)
-        self.p_tilemap_selector = Selector(16, 50, "Number Tilemaps :", [x for x in range(1, 11)], self.COLORS_LEN, self.NUMBER_TILEMAPS - 1)
-
-    #? ---------- HOME ---------- ?#
-
-    def update_home(self):
-        for h_button in self.h_buttons:
-            c = h_button.update()
-            self.current_tab = c if c is not None else self.current_tab
-
-        if pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
-            self.h_clicked = True
-
-    def draw_home(self):
-        pyxel.text(105, 10, "Pyxres Editor", self.COLORS_LEN + 1)
-        pyxel.text(16, 30, "Pyxres Config", self.COLORS_LEN + 1)
-        pyxel.text(16, 62, "Sprite", self.COLORS_LEN + 1)
-        pyxel.text(16, 94, "Tilemap", self.COLORS_LEN + 1)
-        pyxel.text(16, 126, "Sound", self.COLORS_LEN + 1)
-
-        for h_button in self.h_buttons:
-            h_button.draw()
 
     #? ---------- DRAW METHODS ---------- ?#
 
@@ -660,7 +601,7 @@ class Editor:
         return l
 
     def push_sprite_history(self):
-        snapshot = [[pyxel.images[self.s_image_selector.value].pget(x, y) for x in range(256)] for y in range(256)]
+        snapshot = [[pyxel.images[self.s_image_selector.value].pget(x, y) for x in range(pyxel.images[self.s_image_selector.value].width)] for y in range(pyxel.images[self.s_image_selector.value].height)]
         self.s_history.append((self.s_image_selector.value, snapshot))
         if len(self.s_history) > 40:
             self.s_history.pop(0)
@@ -668,8 +609,8 @@ class Editor:
     def undo_sprite(self):
         if self.s_history:
             image, snapshot = self.s_history.pop()
-            for y in range(256):
-                for x in range(256):
+            for y in range(pyxel.images[self.s_image_selector.value].height):
+                for x in range(pyxel.images[self.s_image_selector.value].width):
                     pyxel.images[image].pset(x, y, snapshot[y][x])
 
     def flood_fill_sprite(self, x:int, y:int, old_color:int, new_color:int):
@@ -852,10 +793,6 @@ class Editor:
                     pyxel.images[self.s_image_selector.value].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def update_sprite_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
         #? Grid
         if pyxel.btnp(pyxel.KEY_G): self.s_grid = not self.s_grid
 
@@ -966,8 +903,8 @@ class Editor:
             self.s_offset_y += self.s_zoom_selector.value // 2
         if pyxel.btnp(pyxel.KEY_UP, repeat=5):
             self.s_offset_y -= self.s_zoom_selector.value // 2
-        self.s_offset_x = max(0, min(256 - self.s_zoom_selector.value, self.s_offset_x))
-        self.s_offset_y = max(0, min(256 - self.s_zoom_selector.value, self.s_offset_y))
+        self.s_offset_x = max(0, min(pyxel.images[self.s_image_selector.value].width - self.s_zoom_selector.value, self.s_offset_x))
+        self.s_offset_y = max(0, min(pyxel.images[self.s_image_selector.value].height - self.s_zoom_selector.value, self.s_offset_y))
 
         #? Selectors
         self.s_image_selector.update()
@@ -989,9 +926,6 @@ class Editor:
             self.current_tool = c if c is not None else self.current_tool
 
     def draw_sprite_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
         #? Selectors
         self.s_image_selector.draw()
         self.s_zoom_selector.draw()
@@ -1052,10 +986,12 @@ class Editor:
 
         #? Grid
         if self.s_grid:
-            for y in range(EDITOR_Y, EDITOR_Y + EDITOR_SIZE + 1, self.s_grid_selector.value * self.s_tile_size):
-                pyxel.rect(EDITOR_X, y - 1, EDITOR_SIZE, 1, self.COLORS_LEN)
-            for x in range(EDITOR_X, EDITOR_X + EDITOR_SIZE + 1, self.s_grid_selector.value * self.s_tile_size):
-                pyxel.rect(x - 1, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
+            for y in range(EDITOR_Y, EDITOR_Y + EDITOR_SIZE, self.s_grid_selector.value * self.s_tile_size):
+                pyxel.rect(EDITOR_X, y, EDITOR_SIZE, 1, self.COLORS_LEN)
+            for x in range(EDITOR_X, EDITOR_X + EDITOR_SIZE, self.s_grid_selector.value * self.s_tile_size):
+                pyxel.rect(x, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
+            pyxel.rect(EDITOR_X, EDITOR_Y + EDITOR_SIZE - 1, EDITOR_SIZE, 1, self.COLORS_LEN)
+            pyxel.rect(EDITOR_X + EDITOR_SIZE - 1, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
 
         #? Selection Preview
         if self.s_selection and self.current_tool == SELECT_TOOL:
@@ -1068,7 +1004,7 @@ class Editor:
     #? ---------- TILEMAP EDITOR ---------- ?#
 
     def push_tilemap_history(self):
-        snapshot = [[pyxel.tilemaps[self.t_tilemap_selector.value].pget(x, y) for x in range(256)] for y in range(256)]
+        snapshot = [[pyxel.tilemaps[self.t_tilemap_selector.value].pget(x, y) for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width)] for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height)]
         self.t_history.append((self.t_tilemap_selector.value, snapshot))
         if len(self.t_history) > 40:
             self.t_history.pop(0)
@@ -1076,8 +1012,8 @@ class Editor:
     def undo_tilemap(self):
         if self.t_history:
             tilemap, snapshot = self.t_history.pop()
-            for y in range(256):
-                for x in range(256):
+            for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height):
+                for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width):
                     pyxel.tilemaps[tilemap].pset(x, y, snapshot[y][x])
 
     def flood_fill_tilemap(self, x:int, y:int, old_tile:tuple, new_tile:tuple):
@@ -1262,10 +1198,6 @@ class Editor:
                     pyxel.tilemaps[self.t_tilemap_selector.value].pset(abs_x, abs_y, temp_buffer[y][x])
 
     def update_tilemap_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
         #? Grid
         if pyxel.btnp(pyxel.KEY_G): self.t_grid = not self.t_grid
 
@@ -1389,10 +1321,10 @@ class Editor:
                 self.t_tilemap_offset_y += 8
             if pyxel.btnp(pyxel.KEY_UP, repeat=5):
                 self.t_tilemap_offset_y -= 8
-        self.t_tilemap_offset_x = max(0, min(256 - 16, self.t_tilemap_offset_x))
-        self.t_tilemap_offset_y = max(0, min(256 - 16, self.t_tilemap_offset_y))
-        self.t_tile_offset_x = max(0, min(256 - 64, self.t_tile_offset_x))
-        self.t_tile_offset_y = max(0, min(256 - 64, self.t_tile_offset_y))
+        self.t_tilemap_offset_x = max(0, min(pyxel.tilemaps[self.t_tilemap_selector.value].width - 16, self.t_tilemap_offset_x))
+        self.t_tilemap_offset_y = max(0, min(pyxel.tilemaps[self.t_tilemap_selector.value].height - 16, self.t_tilemap_offset_y))
+        self.t_tile_offset_x = max(0, min(pyxel.images[self.t_image_selector.value].width - 64, self.t_tile_offset_x))
+        self.t_tile_offset_y = max(0, min(pyxel.images[self.t_image_selector.value].height - 64, self.t_tile_offset_y))
 
         #? Selectors
         t = self.t_tilemap_selector.update()
@@ -1411,9 +1343,6 @@ class Editor:
             self.current_tool = c if c is not None else self.current_tool
 
     def draw_tilemap_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
         #? Selectors
         self.t_tilemap_selector.draw()
         self.t_image_selector.draw()
@@ -1461,10 +1390,12 @@ class Editor:
 
         #? Grid
         if self.t_grid:
-            for y in range(EDITOR_Y, EDITOR_Y + EDITOR_SIZE + 1, self.t_grid_selector.value * TILEMAP_TILE_SIZE):
-                pyxel.rect(EDITOR_X, y - 1, EDITOR_SIZE, 1, self.COLORS_LEN)
-            for x in range(EDITOR_X, EDITOR_X + EDITOR_SIZE + 1, self.t_grid_selector.value * TILEMAP_TILE_SIZE):
-                pyxel.rect(x - 1, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
+            for y in range(EDITOR_Y, EDITOR_Y + EDITOR_SIZE, self.t_grid_selector.value * TILEMAP_TILE_SIZE):
+                pyxel.rect(EDITOR_X, y, EDITOR_SIZE, 1, self.COLORS_LEN)
+            for x in range(EDITOR_X, EDITOR_X + EDITOR_SIZE, self.t_grid_selector.value * TILEMAP_TILE_SIZE):
+                pyxel.rect(x, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
+            pyxel.rect(EDITOR_X, EDITOR_Y + EDITOR_SIZE - 1, EDITOR_SIZE, 1, self.COLORS_LEN)
+            pyxel.rect(EDITOR_X + EDITOR_SIZE - 1, EDITOR_Y, 1, EDITOR_SIZE, self.COLORS_LEN)
 
         #? Selection Preview
         if self.t_selection and self.current_tool == SELECT_TOOL:
@@ -1488,66 +1419,15 @@ class Editor:
         else:
             pyxel.text(TILES_PICKER_X, TILES_PICKER_Y - 8, f"({self.t_tile_offset_x // 8 + self.t_tile_selected[0]},{self.t_tile_offset_y // 8 + self.t_tile_selected[1]})", self.COLORS_LEN + 1)
 
-    #? ---------- PYXRES EDITOR ---------- ?#
-
-    def update_pyxres_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
-        #? Entries
-        self.p_file_entry.update()
-
-        #? Selectors
-        self.p_image_selector.update()
-        self.p_tilemap_selector.update()
-
-        if c is not None:
-            p_path = self.p_file_entry.text + ".pyxres"
-            p_image = self.p_image_selector.value
-            p_tilemap = self.p_tilemap_selector.value
-            if p_path != self.PYXRES_PATH:
-                self.save()
-                self.load(p_path)
-                self.load_widgets()
-                return
-            if p_image != self.NUMBER_IMAGES:
-                if p_image > self.NUMBER_IMAGES:
-                    pyxel.images.from_list(pyxel.images.to_list() + [pyxel.Image(256, 256) for _ in range(p_image - self.NUMBER_IMAGES)])
-                else:
-                    pyxel.images.from_list(pyxel.images.to_list()[:p_image])
-
-                self.NUMBER_IMAGES = p_image
-                self.load_widgets()
-            if p_tilemap != self.NUMBER_TILEMAPS:
-                if p_tilemap > self.NUMBER_TILEMAPS:
-                    pyxel.tilemaps.from_list(pyxel.tilemaps.to_list() + [pyxel.Tilemap(256, 256, 0) for _ in range(p_tilemap - self.NUMBER_TILEMAPS)])
-                else:
-                    pyxel.tilemaps.from_list(pyxel.tilemaps.to_list()[:p_tilemap])
-
-                self.NUMBER_TILEMAPS = p_tilemap
-                self.load_widgets()
-
-    def draw_pyxres_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
-        #? Entries
-        self.p_file_entry.draw()
-
-        #? Selectors
-        self.p_image_selector.draw()
-        self.p_tilemap_selector.draw()
-
     #? ---------- AUTOTILE EDITOR ---------- ?#
 
     def get_neighbors(self, tilemap_id:int, tiles_y:list, x:int, y:int):
         n = 0
         if y > 0 and pyxel.tilemaps[tilemap_id].pget(x, y - 1)[1] in tiles_y:
             n += 1
-        if x < 256 and pyxel.tilemaps[tilemap_id].pget(x + 1, y)[1] in tiles_y:
+        if x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y)[1] in tiles_y:
             n += 2
-        if y < 256 and pyxel.tilemaps[tilemap_id].pget(x, y + 1)[1] in tiles_y:
+        if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and pyxel.tilemaps[tilemap_id].pget(x, y + 1)[1] in tiles_y:
             n += 4
         if x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y)[1] in tiles_y:
             n += 8
@@ -1555,20 +1435,20 @@ class Editor:
         if n == 15:
             if y > 0 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y - 1)[1] in tiles_y:
                 n += 1
-            if y > 0 and x < 256 and pyxel.tilemaps[tilemap_id].pget(x + 1, y - 1)[1] in tiles_y:
+            if y > 0 and x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y - 1)[1] in tiles_y:
                 n += 2
-            if y < 256 and x < 256 and pyxel.tilemaps[tilemap_id].pget(x + 1, y + 1)[1] in tiles_y:
+            if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y + 1)[1] in tiles_y:
                 n += 4
-            if y < 256 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y + 1)[1] in tiles_y:
+            if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y + 1)[1] in tiles_y:
                 n += 8
 
         return n
     
     def place_tiles(self):
-        new_tiles = [[(0, 0) for _ in range(256)] for _ in range(256)]
+        new_tiles = [[(0, 0) for _ in range(pyxel.tilemaps[self.t_tilemap_selector.value].width)] for _ in range(pyxel.tilemaps[self.t_tilemap_selector.value].height)]
 
-        for y in range(256):
-            for x in range(256):
+        for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width):
                 tile_x, tile_y  = pyxel.tilemaps[self.t_tilemap_selector.value].pget(x, y)
                 tiles_y = self.a_tiles_y[self.t_image_selector.value]
 
@@ -1578,8 +1458,8 @@ class Editor:
                 else:
                     new_tiles[y][x] = (tile_x, tile_y)
 
-        for y in range(256):
-            for x in range(256):
+        for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width):
                 pyxel.tilemaps[self.t_tilemap_selector.value].pset(x, y, new_tiles[y][x])
 
     def place_a_buttons(self):
@@ -1590,11 +1470,6 @@ class Editor:
                 l.append(Button(80 + x * 10, y, c, self.COLORS_LEN))
                 c += 1
         return l
-
-    def select_a_buttons(self, l:list):
-        for image, tile_y in l:
-            self.a_buttons[image][tile_y].selected = True
-            self.a_tiles_y[image] = [b.id for b in self.a_buttons[image] if b.selected]
 
     def draw_tileset(self, x:int, y:int, image:int, tile_y:int):
         pyxel.blt(x, y + 8, image, 0, tile_y * 8, 8, 8)
@@ -1618,10 +1493,6 @@ class Editor:
         pyxel.blt(x + 26, y + 26, image, 8 * 8, tile_y * 8, 8, 8)
 
     def update_autotile_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
         #? Buttons
         for button in self.a_buttons[self.a_image_selector.value]:
             button.update()
@@ -1632,9 +1503,6 @@ class Editor:
         self.a_image_selector.update()
 
     def draw_autotile_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
         #? Selectors
         self.a_image_selector.draw()
 
@@ -1653,10 +1521,6 @@ class Editor:
     #? ---------- ANIMATION EDITOR ---------- ?#
 
     def update_animation_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
         #? Entries
         self.n_start_uv_entry.update()
         self.n_sprite_wh_entry.update()
@@ -1707,9 +1571,6 @@ class Editor:
         self.n_animation = (u, v, w, h, c, t, s)
 
     def draw_animation_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
         #? Entries
         self.n_start_uv_entry.draw()
         self.n_sprite_wh_entry.draw()
@@ -1754,10 +1615,6 @@ class Editor:
     #? ---------- SOUND EDITOR ---------- ?#
 
     def update_sound_editor(self):
-        #? Home Button
-        c = self.home_button.update()
-        self.current_tab = c if c is not None else self.current_tab
-
         #? Editor
         if (SOUND_EDITOR_X <= pyxel.mouse_x < SOUND_EDITOR_X + SOUND_EDITOR_W) and (SOUND_EDITOR_Y <= pyxel.mouse_y < SOUND_EDITOR_Y + SOUND_EDITOR_H):
             col = (pyxel.mouse_x - SOUND_EDITOR_X) // 2
@@ -1806,9 +1663,6 @@ class Editor:
         if vo:    self.so_sounds[v].volume = self.so_volume_selector.value
 
     def draw_sound_editor(self):
-        #? Home Button
-        self.home_button.draw()
-
         #? Selectors
         self.so_sound_selector.draw()
         self.so_speed_selector.draw()
@@ -1828,6 +1682,59 @@ class Editor:
                 cell_y = SOUND_EDITOR_Y + row * 2
                 pyxel.rect(cell_x, cell_y, 2, 2, self.COLORS_LEN + 2)
 
+    #? ---------- MUSIC ---------- ?#
+
+    def import_music(self):
+        filename = self.m_import_entry.value + ".json"
+        if os.path.isfile(filename):
+            f = open(filename, "rt")
+            music = json.loads(f.read())
+            music_n = 100 + self.m_music_selector.value * 4
+            for i, sound in enumerate(music):
+                pyxel.sounds[music_n + i].set(*sound)
+            self.m_import_entry.value= ""
+
+    def update_music_editor(self):
+        #? Selectors
+        m = self.m_music_selector.update()
+        if m:
+            self.m_import_entry.value = ""
+
+        #? Entry
+        self.m_import_entry.update()
+
+        #? Import
+        if self.m_import_button.update(5):
+            self.import_music()
+
+        #? Play
+        if pyxel.btnp(pyxel.KEY_SPACE) or self.m_play_button.update(5):
+            if not pyxel.play_pos(0):
+                n = 100 + self.m_music_selector.value * 4
+                for i in range(4):
+                    pyxel.play(i, n + i)
+            else:
+                for i in range(4):
+                    pyxel.stop(i)
+
+        #? Reset
+        if self.m_reset_button.update(5):
+            n = 100 + self.m_music_selector.value * 4
+            for i in range(4):
+                pyxel.sounds[n + i].set("", "", "", "", 15)
+
+    def draw_music_editor(self):
+        #? Selectors
+        self.m_music_selector.draw()
+
+        #? Entry
+        self.m_import_entry.draw()
+
+        #? Buttons
+        self.m_play_button.draw()
+        self.m_reset_button.draw()
+        self.m_import_button.draw()
+
     #? ---------- MAIN ---------- ?#
 
     def update(self):
@@ -1838,36 +1745,34 @@ class Editor:
         if pyxel.btnp(pyxel.KEY_S) and (pyxel.btn(pyxel.KEY_CTRL) or pyxel.btn(pyxel.KEY_GUI)):
             self.save()
 
-        if self.current_tab == HOME:                  self.update_home()
+        for tab_button in self.tab_buttons:
+            c = tab_button.update(self.current_tab)
+            self.current_tab = c if c is not None else self.current_tab
 
-        #? Click Bug
-        if self.h_clicked:
-            if pyxel.btnr(pyxel.MOUSE_BUTTON_LEFT):
-                self.h_clicked = False
-            return
-
-        if self.current_tab == SPRITE_EDITOR:       self.update_sprite_editor()
+        if self.current_tab == SPRITE_EDITOR:         self.update_sprite_editor()
         elif self.current_tab == TILEMAP_EDITOR:      self.update_tilemap_editor()
-        elif self.current_tab == PYXRES_EDITOR:       self.update_pyxres_editor()
         elif self.current_tab == AUTOTILE_EDITOR:     self.update_autotile_editor()
         elif self.current_tab == ANIMATION_EDITOR:    self.update_animation_editor()
         elif self.current_tab == SOUND_EDITOR:        self.update_sound_editor()
+        elif self.current_tab == MUSIC_EDITOR:        self.update_music_editor()
 
     def draw(self):
         pyxel.cls(self.COLORS_LEN)
 
-        if self.current_tab == HOME:                  self.draw_home()
-        elif self.current_tab == SPRITE_EDITOR:       self.draw_sprite_editor()
+        for tab_button in self.tab_buttons:
+            tab_button.draw()
+
+        if self.current_tab == SPRITE_EDITOR:         self.draw_sprite_editor()
         elif self.current_tab == TILEMAP_EDITOR:      self.draw_tilemap_editor()
-        elif self.current_tab == PYXRES_EDITOR:       self.draw_pyxres_editor()
         elif self.current_tab == AUTOTILE_EDITOR:     self.draw_autotile_editor()
         elif self.current_tab == ANIMATION_EDITOR:    self.draw_animation_editor()
         elif self.current_tab == SOUND_EDITOR:        self.draw_sound_editor()
+        elif self.current_tab == MUSIC_EDITOR:        self.draw_music_editor()
 
-        for y in range(len(MOUSE)):
-            for x in range(len(MOUSE[y])):
-                if MOUSE[y][x] != 0:
-                    pyxel.rect(pyxel.mouse_x + x, pyxel.mouse_y + y, 1, 1, self.COLORS_LEN + MOUSE[y][x])
+        for y in range(len(MOUSE_ICON)):
+            for x in range(len(MOUSE_ICON[y])):
+                if MOUSE_ICON[y][x] != 0:
+                    pyxel.rect(pyxel.mouse_x + x, pyxel.mouse_y + y, 1, 1, self.COLORS_LEN + MOUSE_ICON[y][x])
 
 if __name__ == "__main__":
     EXTENDED_PICO8_COLORS = [0x000000, 0x1D2B53, 0x7E2553, 0x008751, 0xAB5236, 0x5F574F, 0xC2C3C7, 0xFFF1E8, 0xFF004D, 0xFFA300, 0xFFEC27, 0x00E436, 0x29ADFF, 0x83769C, 0xFF77A8, 0xFFCCAA, 0x1A1C2C, 0x5D275D, 0x008080, 0x1B6535, 0x73464D, 0x9D9D9D, 0xFFFFFF, 0xFF6C24, 0xFFD93F, 0xB2D732, 0x3CA370, 0x0066CC, 0x45283C, 0xA288AE, 0xF3B4B4, 0xD4A373]
