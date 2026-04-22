@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 21/04/2026
+@updated : 22/04/2026
 """
 
 #? -------------------- IMPORTATIONS -------------------- ?#
@@ -9,7 +9,6 @@
 from other import get_anchored_position
 from vars import *
 import random
-import pyxel
 import math
 
 #? -------------------- SPRITES -------------------- ?#

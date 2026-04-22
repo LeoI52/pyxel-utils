@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 20/10/2025
-@updated : 21/04/2026
+@updated : 22/04/2026
 """
 
 #? -------------------- IMPORTATIONS -------------------- ?#
@@ -9,7 +9,6 @@
 from motions import wave_motion
 from vars import *
 import random
-import pyxel
 import math
 
 #? -------------------- BACKGROUNDS -------------------- ?#
@@ -252,6 +251,57 @@ class LightningManager:
 
         for bolt in self.bolts:
             bolt.draw(camera_x, camera_y)
+
+class CircleShockwave:
+    
+    def __init__(self, x:int, y:int, max_radius:int, colors:list|int, thickness:int, growth_speed:int|float=1):
+        self.x = x
+        self.y = y
+        self.radius = 0
+        self.max_radius = max_radius
+        self.colors = colors if isinstance(colors, list) else [colors]
+        self.growth_speed = growth_speed
+        self.thickness = thickness
+        self.alive = True
+        self.dither = 1
+
+    def update(self):
+        self.radius += self.growth_speed
+        if self.dither <= 0:
+            self.alive = False
+        if self.radius >= self.max_radius:
+            self.dither -= 0.05
+
+    def draw(self):
+        pyxel.dither(self.dither)
+        for i in range(int(self.thickness)):
+            pyxel.circb(self.x, self.y, self.radius - i, self.colors[i % len(self.colors)])
+        pyxel.dither(1)
+
+class ShockwaveManager:
+
+    def __init__(self):
+        self.shockwaves = []
+
+    def reset(self):
+        self.shockwaves = []
+
+    def add_shockwave(self, shockwave:CircleShockwave):
+        self.shockwaves.append(shockwave)
+
+    def remove_shockwave(self, shockwave:CircleShockwave):
+        if shockwave in self.shockwaves:
+            self.shockwaves.remove(shockwave)
+
+    def update(self):
+        for shockwave in self.shockwaves:
+            shockwave.update()
+
+        self.shockwaves = [shockwave for shockwave in self.shockwaves if shockwave.alive]
+
+    def draw(self):
+        for shockwave in self.shockwaves:
+            shockwave.draw()
 
 #? -------------------- EXAMPLE -------------------- ?#
 

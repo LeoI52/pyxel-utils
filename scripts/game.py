@@ -1,16 +1,15 @@
 """
 @author : Léo Imbert
 @created : 15/10/2024
-@updated : 21/04/2026
+@updated : 22/04/2026
 """
 
 #? -------------------- IMPORTATIONS -------------------- ?#
 
 from tween import Tween
-# from gui import Text
+from gui import Text
 from vars import *
 import random
-import pyxel
 import math
 
 #? -------------------- TRANSITIONS -------------------- ?#
@@ -539,22 +538,22 @@ def tween_move_object_action(obj, start_x:float, start_y:float, end_x:float, end
 
     return CutsceneAction(duration, update, fps)
 
-# def typewriter_text_action(text:Text, duration:float, fps:int=60):
-#     visible_chars = [0]
-#     t = text.text
-#     total_chars = len(text.text) + 1
+def typewriter_text_action(text:Text, duration:float, fps:int=60):
+    visible_chars = [0]
+    t = text.text
+    total_chars = len(text.text) + 1
 
-#     def update(action):
-#         text.update()
-#         progress = min(action.elapsed / duration, 1.0)
-#         visible_chars[0] = min(int(total_chars * progress), len(t))
+    def update(action):
+        text.update()
+        progress = min(action.elapsed / duration, 1.0)
+        visible_chars[0] = min(int(total_chars * progress), len(t))
 
-#     def draw(action):
-#         text.text = t[:visible_chars[0]]
-#         text.initialize()
-#         text.draw()
+    def draw(action):
+        text.text = t[:visible_chars[0]]
+        text.initialize()
+        text.draw()
 
-#     return CutsceneAction(duration, update, draw, fps)
+    return CutsceneAction(duration, update, draw, fps)
 
 #? -------------------- EXAMPLE -------------------- ?#
 
@@ -615,12 +614,12 @@ if __name__ == "__main__":
     x, y = 20, 20
 
     cutscene = Cutscene()
-    #t = Text("Hello", -48, -48, 8, FONT_DEFAULT, 2, relative=False)
+    t = Text("Hello", -48, -48, 8, FONT_BOLD, 2, relative=False)
 
     cutscene.add_action(wait_action(1))
     cutscene.add_action(tween_camera_action(pm, 0, 0, -50, -50, 2, ease_out_quint))
     cutscene.add_action(shake_camera_action(pm, 5, 0.5, 1))
-    #cutscene.add_action(typewriter_text_action(t, 5))
+    cutscene.add_action(typewriter_text_action(t, 5))
     cutscene.add_action(wait_action(0.5))
 
     pm.run()

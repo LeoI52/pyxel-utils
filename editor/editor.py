@@ -36,9 +36,11 @@ EMPTY_ICON = [
 
 SPRITE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,1,1,1,1,1,1,1,1,0,0,0,1],[1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],[1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 TILEMAP_ICON = [[1]*16,[1]+[0]*14+[1],[1]+[0]*14+[1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,1],[1]+[0]*14+[1],[1]+[0]*14+[1],[1]*16]
+AUTOTILE_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,1,1,1,1,1,1,0,1,0,0,1],[1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1],[1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 
 SPRITE_EDITOR = 0
 TILEMAP_EDITOR = 1
+AUTOTILE_EDITOR = 2
 
 SELECT_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],[1,0,1,1,0,1,1,0,0,1,1,0,1,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
 PEN_ICON = [[1]*16,[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1],[1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1],[1,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],[1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],[1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1],[1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1],[1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1],[1,0,0,1,0,0,1,0,0,1,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,1,0,0,0,0,0,0,1],[1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1],[1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,1],[1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],[1]*16]
@@ -204,6 +206,24 @@ class Selector:
         pyxel.rect(plus_x, self.y, self.btn_w, self.btn_h, self.colors_len + 2)
         pyxel.text(plus_x + 2, self.y + 2, "+", self.colors_len + 1)
 
+class Button:
+
+    def __init__(self, x:int, y:int, id:int, colors_len:int):
+        self.x, self.y = x, y
+        self.w, self.h = 8, 8
+        self.id = id
+        self.colors_len = colors_len
+        self.selected = False
+
+    def update(self):
+        if self.x <= pyxel.mouse_x < self.x + self.w and self.y <= pyxel.mouse_y < self.y + self.h and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            self.selected = not self.selected
+    
+    def draw(self):
+        x = 0 if not self.selected else 2
+        pyxel.rect(self.x, self.y, self.w, self.h, self.colors_len + x)
+        pyxel.text(self.x + 1, self.y + 2, str(self.id), self.colors_len + 1)
+
 #? ---------- UTILITY FUNCTIONS ---------- ?#
 
 def collision_point_rect(x1:int, y1:int, x2:int, y2:int, w2:int, h2:int)-> bool:
@@ -232,7 +252,8 @@ class Editor:
         self.current_tab = SPRITE_EDITOR
         self.current_tool = SELECT_TOOL
         self.tab_buttons = [IconButton(0, 16, SPRITE_EDITOR, SPRITE_ICON, self.COLORS_LEN),
-                            IconButton(0, 32, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),]
+                            IconButton(0, 32, TILEMAP_EDITOR, TILEMAP_ICON, self.COLORS_LEN),
+                            IconButton(0, 48, AUTOTILE_EDITOR, AUTOTILE_ICON, self.COLORS_LEN),]
         self.tool_buttons = [IconButton(169, 16, SELECT_TOOL, SELECT_ICON, self.COLORS_LEN),
                              IconButton(185, 16, PEN_TOOL, PEN_ICON, self.COLORS_LEN),
                              IconButton(201, 16, MIRROR_TOOL, MIRROR_ICON, self.COLORS_LEN),
@@ -272,6 +293,11 @@ class Editor:
         self.t_tilemap_selector = Selector(25, 148, "Tilemap:", [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
         self.t_layer_selector = Selector(93, 148, "Layer:", ["None"] + [x for x in range(self.NUMBER_TILEMAPS)], self.COLORS_LEN)
         self.t_image_selector = Selector(169, 148, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN, pyxel.tilemaps[0].imgsrc)
+
+        #? Autotile Editor Variables
+        self.a_tiles_y = {x:[] for x in range(self.NUMBER_IMAGES)}
+        self.a_buttons = {x:self.place_a_buttons() for x in range(self.NUMBER_IMAGES)}
+        self.a_image_selector = Selector(20, 2, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
 
         #? Pyxel Run
         pyxel.run(self.update, self.draw)
@@ -1031,7 +1057,7 @@ class Editor:
 
                 if self.current_tool in [FILLED_RECT_TOOL, RECT_TOOL, FILLED_ELLI_TOOL, ELLI_TOOL, LINE_TOOL]:
                     self.t_drag_start = (mx, my)
-                if self.current_tool == BUCKET_TOOL:
+                elif self.current_tool == BUCKET_TOOL:
                     self.push_tilemap_history()
                     self.commit_tiles(self.flood_fill_tilemap(mx, my, pyxel.tilemaps[self.t_tilemap_selector.value].pget(mx, my), (tx, ty)))
                 elif self.current_tool == SWAP_TOOL:
@@ -1216,6 +1242,105 @@ class Editor:
         else:
             pyxel.text(TILES_PICKER_X, TILES_PICKER_Y - 8, f"({self.t_tile_offset_x // 8 + self.t_tile_selected[0]},{self.t_tile_offset_y // 8 + self.t_tile_selected[1]})", self.COLORS_LEN + 1)
 
+    #? ---------- AUTOTILE EDITOR ---------- ?#
+
+    def get_neighbors(self, tilemap_id:int, tiles_y:list, x:int, y:int):
+        n = 0
+        if y > 0 and pyxel.tilemaps[tilemap_id].pget(x, y - 1)[1] in tiles_y:
+            n += 1
+        if x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y)[1] in tiles_y:
+            n += 2
+        if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and pyxel.tilemaps[tilemap_id].pget(x, y + 1)[1] in tiles_y:
+            n += 4
+        if x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y)[1] in tiles_y:
+            n += 8
+
+        if n == 15:
+            if y > 0 and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y - 1)[1] in tiles_y:
+                n += 1
+            if y > 0 and x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y - 1)[1] in tiles_y:
+                n += 2
+            if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and x < pyxel.tilemaps[self.t_tilemap_selector.value].width and pyxel.tilemaps[tilemap_id].pget(x + 1, y + 1)[1] in tiles_y:
+                n += 4
+            if y < pyxel.tilemaps[self.t_tilemap_selector.value].height and x > 0 and pyxel.tilemaps[tilemap_id].pget(x - 1, y + 1)[1] in tiles_y:
+                n += 8
+
+        return n
+    
+    def place_tiles(self):
+        new_tiles = [[(0, 0) for _ in range(pyxel.tilemaps[self.t_tilemap_selector.value].width)] for _ in range(pyxel.tilemaps[self.t_tilemap_selector.value].height)]
+
+        for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width):
+                tile_x, tile_y  = pyxel.tilemaps[self.t_tilemap_selector.value].pget(x, y)
+                tiles_y = self.a_tiles_y[self.t_image_selector.value]
+
+                if tile_y in tiles_y:
+                    neighbors = self.get_neighbors(self.t_tilemap_selector.value, tiles_y, x, y)
+                    new_tiles[y][x] = (neighbors, tile_y)
+                else:
+                    new_tiles[y][x] = (tile_x, tile_y)
+
+        for y in range(pyxel.tilemaps[self.t_tilemap_selector.value].height):
+            for x in range(pyxel.tilemaps[self.t_tilemap_selector.value].width):
+                pyxel.tilemaps[self.t_tilemap_selector.value].pset(x, y, new_tiles[y][x])
+
+    def place_a_buttons(self):
+        l = []
+        c = 0
+        for y in [2, 12]:
+            for x in range(16):
+                l.append(Button(80 + x * 10, y, c, self.COLORS_LEN))
+                c += 1
+        return l
+
+    def draw_tileset(self, x:int, y:int, image:int, tile_y:int):
+        pyxel.blt(x, y + 8, image, 0, tile_y * 8, 8, 8)
+
+        pyxel.blt(x + 10, y, image, 6 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 18, y, image, 14 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 26, y, image, 12 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 10, y + 8, image, 7 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 18, y + 8, image, 30 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 26, y + 8, image, 13 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 10, y + 16, image, 3 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 18, y + 16, image, 11 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 26, y + 16, image, 9 * 8, tile_y * 8, 8, 8)
+
+        pyxel.blt(x + 36, y, image, 4 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 36, y + 8, image, 5 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 36, y + 16, image, 1 * 8, tile_y * 8, 8, 8)
+
+        pyxel.blt(x + 10, y + 26, image, 2 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 18, y + 26, image, 10 * 8, tile_y * 8, 8, 8)
+        pyxel.blt(x + 26, y + 26, image, 8 * 8, tile_y * 8, 8, 8)
+
+    def update_autotile_editor(self):
+        #? Buttons
+        for button in self.a_buttons[self.a_image_selector.value]:
+            button.update()
+
+        self.a_tiles_y[self.a_image_selector.value] = [b.id for b in self.a_buttons[self.a_image_selector.value] if b.selected]
+
+        #? Selectors
+        self.a_image_selector.update()
+
+    def draw_autotile_editor(self):
+        #? Selectors
+        self.a_image_selector.draw()
+
+        #? Buttons
+        for button in self.a_buttons[self.a_image_selector.value]:
+            button.draw()
+
+        #? Tilesets
+        x, y = 0, 0
+        for i in range(len(self.a_tiles_y[self.a_image_selector.value])):
+            self.draw_tileset(16 + x, 22 + y, self.a_image_selector.value, self.a_tiles_y[self.a_image_selector.value][i])
+            x = (x + 46) % 230
+            if x == 0:
+                y += 36
+
     #? ---------- MAIN FUNCTIONS ---------- ?#
 
     def update(self):
@@ -1232,6 +1357,7 @@ class Editor:
 
         if self.current_tab == SPRITE_EDITOR:         self.update_sprite_editor()
         elif self.current_tab == TILEMAP_EDITOR:      self.update_tilemap_editor()
+        elif self.current_tab == AUTOTILE_EDITOR:     self.update_autotile_editor()
 
     def draw(self):
         pyxel.cls(self.COLORS_LEN)
@@ -1241,6 +1367,7 @@ class Editor:
 
         if self.current_tab == SPRITE_EDITOR:         self.draw_sprite_editor()
         elif self.current_tab == TILEMAP_EDITOR:      self.draw_tilemap_editor()
+        elif self.current_tab == AUTOTILE_EDITOR:     self.draw_autotile_editor()
 
         for y in range(len(MOUSE_ICON)):
             for x in range(len(MOUSE_ICON[y])):
