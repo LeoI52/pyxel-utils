@@ -1,7 +1,7 @@
 """
 @author : Léo Imbert
 @created : 28/09/2025
-@updated : 21/04/2026
+@updated : 23/04/2026
 """
 
 #? ---------- IMPORTATIONS ---------- ?#
@@ -298,6 +298,7 @@ class Editor:
         self.a_tiles_y = {x:[] for x in range(self.NUMBER_IMAGES)}
         self.a_buttons = {x:self.place_a_buttons() for x in range(self.NUMBER_IMAGES)}
         self.a_image_selector = Selector(20, 2, "Image:", [x for x in range(self.NUMBER_IMAGES)], self.COLORS_LEN)
+        self.select_a_buttons(self.data["a_buttons"])
 
         #? Pyxel Run
         pyxel.run(self.update, self.draw)
@@ -321,12 +322,31 @@ class Editor:
                 pyxel.sounds[i].speed = 1
 
         self.PYXRES_PATH = pyxres_path
+        self.JSON_PATH = pyxres_path[:-7] + ".json"
         self.NUMBER_IMAGES = len(pyxel.images)
         self.NUMBER_TILEMAPS = len(pyxel.tilemaps)
         self.NUMBER_SOUNDS = len(pyxel.sounds)
 
+        if os.path.isfile(self.JSON_PATH):
+            with open(self.JSON_PATH, "r") as file:
+                self.data = json.load(file)
+        else:
+            self.data = {"a_buttons":[]}
+
     def save(self):
         pyxel.save(self.PYXRES_PATH)
+
+        self.data = {"a_buttons":[]}
+        for image, buttons in self.a_buttons.items():
+            for i in range(len(buttons)):
+                if self.a_buttons[image][i].selected:
+                    self.data["a_buttons"].append((image, i))
+
+        if self.data["a_buttons"] != []:
+            with open(self.JSON_PATH, "w") as file:
+                json.dump(self.data, file, indent=4)
+        elif os.path.isfile(self.JSON_PATH):
+            os.remove(self.JSON_PATH)
 
     #? ---------- DRAW METHODS ---------- ?#
 
@@ -1293,6 +1313,11 @@ class Editor:
                 l.append(Button(80 + x * 10, y, c, self.COLORS_LEN))
                 c += 1
         return l
+
+    def select_a_buttons(self, l:list):
+        for image, tile_y in l:
+            self.a_buttons[image][tile_y].selected = True
+            self.a_tiles_y[image] = [b.id for b in self.a_buttons[image] if b.selected]
 
     def draw_tileset(self, x:int, y:int, image:int, tile_y:int):
         pyxel.blt(x, y + 8, image, 0, tile_y * 8, 8, 8)
